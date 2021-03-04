@@ -1,0 +1,203 @@
+<!doctype html><html lang=en><head><title>Docker Container Tutorial - Creating Docker Container Images - Ethernet Research</title><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=description content="Ethernet Research: Actionable information about cloud technologies at your fingertips"><meta name=author content="Ganesh Velrajan"><meta property="og:title" content="Docker Container Tutorial - Creating Docker Container Images"><meta property="og:description" content="How to create Docker images: In this tutorial we&rsquo;ll see how to create Docker container images. There are two methods to create a docker image:
+ Manual method Dockerfile method  Manual Method: First let&rsquo;s pull and run a latest version of ubuntu container."><meta property="og:type" content="article"><meta property="og:url" content="http://www.ethernetresearch.com/geekzone/docker-container-tutorial-creating-docker-container-images/"><meta property="og:image" content="http://www.ethernetresearch.com/images/docker/docker.png"><meta property="article:published_time" content="2018-07-19T00:00:00+00:00"><meta property="article:modified_time" content="2018-07-19T00:00:00+00:00"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content="http://www.ethernetresearch.com/images/docker/docker.png"><meta name=twitter:title content="Docker Container Tutorial - Creating Docker Container Images"><meta name=twitter:description content="How to create Docker images: In this tutorial we&rsquo;ll see how to create Docker container images. There are two methods to create a docker image:
+ Manual method Dockerfile method  Manual Method: First let&rsquo;s pull and run a latest version of ubuntu container."><meta name=generator content="Hugo 0.79.1"><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css integrity="sha256-l85OmPOjvil/SOvVt3HnSSjzF1TUMyT9eV0c2BzEGzU=" crossorigin=anonymous><link rel=stylesheet href=http://www.ethernetresearch.com/fontawesome/css/all.min.css><link rel=stylesheet href="https://fonts.googleapis.com/css?family=Roboto+Slab|Ruda"><link rel=stylesheet type=text/css href=http://www.ethernetresearch.com/css/styles.css></head><body><div id=container><header><h1><a href=http://www.ethernetresearch.com/>Ethernet Research</a></h1><ul id=social-media><li><a href=https://linkedin.com/in/username title=LinkedIn><i class="fab fa-linkedin fa-lg"></i></a></li><li><a href=https://www.youtube.com/channel/UCnmHCstjZcevizOQ0qmANlw title=Youtube><i class="fab fa-youtube fa-lg"></i></a></li></ul><p><em>Actionable information about cloud technologies</em></p></header><nav><ul><li><a href=http://www.ethernetresearch.com/geekzone/><i class="fa-li fa fa-lg"></i><span>GeekZone</span></a></li><li><a href=http://www.ethernetresearch.com/articles/><i class="fa-li fa fa-lg"></i><span>Articles</span></a></li><li><a href=http://www.ethernetresearch.com/about/><i class="fa-li fa fa-lg"></i><span>About Us</span></a></li><li><a href=http://www.ethernetresearch.com/online-courses-training/><i class="fa-li fa fa-lg"></i><span>Online Courses</span></a></li><li><a href=http://www.ethernetresearch.com/contact/><i class="fa-li fa fa-lg"></i><span>Contact</span></a></li></ul></nav><main><article><h1>Docker Container Tutorial - Creating Docker Container Images</h1><aside><ul><li><time class=post-date datetime=2018-07-19T00:00:00Z>Jul 19, 2018</time></li><li>Categories:
+<em><a href=http://www.ethernetresearch.com/categories/geekzone>GeekZone</a>
+,
+<a href=http://www.ethernetresearch.com/categories/docker>Docker</a></em></li><li><em><a href=http://www.ethernetresearch.com/tags/geekzone>#GeekZone</a>
+,
+<a href=http://www.ethernetresearch.com/tags/docker>#Docker</a>
+,
+<a href=http://www.ethernetresearch.com/tags/kubernetes>#Kubernetes</a></em></li><li>8 minute read</li></ul></aside><div class=featured_image><a href=http://www.ethernetresearch.com/geekzone/docker-container-tutorial-creating-docker-container-images/ title="Docker Container Tutorial - Creating Docker Container Images"><img src=http://www.ethernetresearch.com/images/docker/docker.png></a></div><h2 id=how-to-create-docker-images>How to create Docker images:</h2><p>In this tutorial we&rsquo;ll see how to create Docker container images.  There are two methods to create a docker image:</p><ul><li>Manual method</li><li>Dockerfile method</li></ul><h3 id=manual-method>Manual Method:</h3><p>First let&rsquo;s pull and run a latest version of ubuntu container.</p><pre><code>$ docker container run -it ubuntu
+Unable to find image 'ubuntu:latest' locally
+latest: Pulling from library/ubuntu
+6b98dfc16071: Pull complete 
+4001a1209541: Pull complete 
+6319fc68c576: Pull complete 
+b24603670dc3: Pull complete 
+97f170c87c6f: Pull complete 
+Digest: sha256:5f4bdc3467537cbbe563e80db2c3ec95d548a9145d64453b06939c4592d67b6d
+Status: Downloaded newer image for ubuntu:latest
+root@b549dd9ccb9e:/# 
+</code></pre><p>Let&rsquo;s modify the contents of the container root file system by creating a new file named &ldquo;testfile&rdquo;.</p><pre><code>root@b549dd9ccb9e:/# echo &quot;It's fun to learn Docker containers&quot; &gt; testfile 
+root@b549dd9ccb9e:/# cat testfile 
+It's fun to learn Docker containers 
+root@b549dd9ccb9e:/# exit 
+exit 
+$ docker ps -a | grep ubuntu 
+b549dd9ccb9e ubuntu &quot;/bin/bash&quot; 3 minutes ago Exited (0) 3 minutes ago agitated_kepler $
+</code></pre><p>Now let&rsquo;s check what changes we have made in the ubuntu container using the following diff command.</p><pre><code>$ docker container diff b549
+C /root
+A /root/.bash_history
+A /testfile
+$
+</code></pre><p>We could commit the changes we have made in this ubuntu container and make it an image.</p><pre><code>$ docker container commit b549
+sha256:ce1fc66062791dbda9056d74ad5873a53dffd558ac4aa23bd44e51af8fd8b850
+$ docker image ls 
+REPOSITORY TAG IMAGE ID CREATED SIZE
+  ce1fc6606279 23 seconds ago 81.2MB
+ubuntu latest 113a43faa138 2 weeks ago 81.2MB
+</code></pre><p>The commit assigned a unique image id(ce1fc6606279) to the modified ubuntu image.  Let&rsquo;s associate a name &ldquo;<em>funtolearn</em>&rdquo; with the image.</p><pre><code>$ docker image tag ce1f funtolearn:latest
+$ docker image ls
+REPOSITORY TAG IMAGE ID CREATED SIZE
+funtolearn latest ce1fc6606279 10 minutes ago 81.2MB
+ubuntu latest 113a43faa138 2 weeks ago 81.2MB
+</code></pre><p>We could now distribute this image to others so that they could spawn a container using this image and it would contain the <em>testfile</em> we created.</p><pre><code>$ docker container run -it funtolearn
+root@665193b64648:/# ls
+bin dev home lib64 mnt proc run srv testfile usr
+boot etc lib media opt root sbin sys tmp var
+root@665193b64648:/# cat testfile 
+It's fun to learn Docker containers
+root@665193b64648:/# exit
+exit
+$
+</code></pre><p>To summarize, what we did in this exercise was we pulled a base version of ubuntu container and then manually added a file.  We then created a new docker image by committing this modified container workspace and gave it a name.</p><h3 id=dockerfile-method>Dockerfile Method:</h3><p>First let&rsquo;s create our <em>testfile</em> and add some contents to it.</p><pre><code>$ echo &quot;It's SO MUCH FUN to learn Docker containers&quot; &gt; testfile
+</code></pre><p>Next let&rsquo;s create a <em>Dockerfile</em> containing the following instructions to build a Docker image.</p><pre><code>$ cat Dockerfile 
+FROM ubuntu
+COPY ./testfile /var/local
+WORKDIR /var/local
+CMD [&quot;cat&quot;, &quot;testfile&quot;]
+</code></pre><p>Here is what the above Dockerfile asks Docker to do:  Take the latest version of ubuntu image as the base, copy the <em>testfile</em> in the host directory to the container&rsquo;s /var/local directory, change the working directory of the container to /var/local and finally execute the command &ldquo;cat testfile&rdquo;.</p><p>Let&rsquo;s create the docker image using the below command.</p><pre><code>$ docker image build -t muchfuntolearn .
+Sending build context to Docker daemon 17.92kB
+Step 1/4 : FROM ubuntu
+ ---&gt; 113a43faa138
+Step 2/4 : COPY ./testfile /var/local
+ ---&gt; ed771f3dc583
+Step 3/4 : WORKDIR /var/local
+Removing intermediate container b7ba093f07d0
+ ---&gt; df81918abdca
+Step 4/4 : CMD [&quot;cat&quot;, &quot;testfile&quot;]
+ ---&gt; Running in 7e782fecd2cb
+Removing intermediate container 7e782fecd2cb
+ ---&gt; b192a036aa94
+Successfully built b192a036aa94
+Successfully tagged muchfuntolearn:latest
+</code></pre><p>The &ldquo;.&rdquo; in the above command specifies the PATH to find the &ldquo;Dockerfile&rdquo;.  Let&rsquo;s check if the image has been created in the name.</p><pre><code>$ docker image ls
+REPOSITORY TAG IMAGE ID CREATED SIZE
+muchfuntolearn latest b192a036aa94 15 seconds ago 81.2MB
+funtolearn latest ce1fc6606279 About an hour ago 81.2MB
+ubuntu latest 113a43faa138 2 weeks ago 81.2MB
+</code></pre><p>If we run the container using the newly created image we&rsquo;ll see the contents of the <em>testfile</em> getting displayed.</p><pre><code>$ docker container run muchfuntolearn
+It's SO MUCH FUN to learn Docker containers
+</code></pre><p>The beauty of the Dockerfile method is that it enables us to build Docker images with many variations quickly by just editing the Dockerfile.</p><p>An interesting fact about Docker images is that it is made of many layers.  We could display the various layers in an image, for eg: the base ubuntu image, using the following command.</p><pre><code>$ docker image history ubuntu
+IMAGE CREATED CREATED BY SIZE COMMENT
+113a43faa138 2 weeks ago /bin/sh -c #(nop) CMD [&quot;/bin/bash&quot;] 0B 
+ 2 weeks ago /bin/sh -c mkdir -p /run/systemd &amp;&amp; echo 'do… 7B 
+ 2 weeks ago /bin/sh -c sed -i 's/^#\s*\(deb.*universe\)$… 2.76kB 
+ 2 weeks ago /bin/sh -c rm -rf /var/lib/apt/lists/* 0B 
+ 2 weeks ago /bin/sh -c set -xe &amp;&amp; echo '#!/bin/sh' &gt; /… 745B 
+ 2 weeks ago /bin/sh -c #(nop) ADD file:28c0771e44ff530db… 81.1MB
+</code></pre><p>Let&rsquo;s check if the image we created has more layers added on top of the ubuntu image layers.</p><pre><code>$ docker image history muchfuntolearn
+IMAGE CREATED CREATED BY SIZE COMMENT
+b192a036aa94 32 minutes ago /bin/sh -c #(nop) CMD [&quot;cat&quot; &quot;testfile&quot;] 0B 
+df81918abdca 32 minutes ago /bin/sh -c #(nop) WORKDIR /var/local 0B 
+ed771f3dc583 32 minutes ago /bin/sh -c #(nop) COPY file:41c23f7a0a3b38c1… 44B 
+113a43faa138 2 weeks ago /bin/sh -c #(nop) CMD [&quot;/bin/bash&quot;] 0B 
+ 2 weeks ago /bin/sh -c mkdir -p /run/systemd &amp;&amp; echo 'do… 7B 
+ 2 weeks ago /bin/sh -c sed -i 's/^#\s*\(deb.*universe\)$… 2.76kB 
+ 2 weeks ago /bin/sh -c rm -rf /var/lib/apt/lists/* 0B 
+ 2 weeks ago /bin/sh -c set -xe &amp;&amp; echo '#!/bin/sh' &gt; /… 745B 
+ 2 weeks ago /bin/sh -c #(nop) ADD file:28c0771e44ff530db… 81.1MB
+</code></pre><p>Each layer has an unique id associated with it and will be cached locally.  The reason we see the tag in the above output is because those layers are not locally present but exists in the DockerHub repository.</p><p>If we try to rebuild the same image and give it a new version, we&rsquo;ll see that Docker builds the new image using various layers of the image already present in the local cache.</p><pre><code>$ docker image build -t muchfuntolearn:v1.0 .
+Sending build context to Docker daemon 17.92kB
+Step 1/4 : FROM ubuntu
+ ---&gt; 113a43faa138
+Step 2/4 : COPY ./testfile /var/local
+ ---&gt; Using cache
+ ---&gt; f6500304a128
+Step 3/4 : WORKDIR /var/local
+ ---&gt; Using cache
+ ---&gt; cf189f932f95
+Step 4/4 : CMD [&quot;cat&quot;, &quot;testfile&quot;]
+ ---&gt; Using cache
+ ---&gt; 912fe16e4752
+Successfully built 912fe16e4752
+Successfully tagged muchfuntolearn:v1.0
+</code></pre><p>Suppose, we would like to modify the contents of the <em>testfile</em>, just like any real world application that gets changed frequently, and rebuild a new image version, we follow the same steps.</p><pre><code>$ echo &quot;I want to learn more about Docker containers&quot; &gt;&gt; testfile
+$ docker image build -t muchfuntolearn:v2.0 .
+Sending build context to Docker daemon 17.92kB
+Step 1/4 : FROM ubuntu
+ ---&gt; 113a43faa138
+Step 2/4 : COPY ./testfile /var/local
+ ---&gt; f6500304a128
+Step 3/4 : WORKDIR /var/local
+Removing intermediate container 0bf6987cef00
+ ---&gt; cf189f932f95
+Step 4/4 : CMD [&quot;cat&quot;, &quot;testfile&quot;]
+ ---&gt; Running in 3b958d65350d
+Removing intermediate container 3b958d65350d
+ ---&gt; 912fe16e4752
+Successfully built 912fe16e4752
+Successfully tagged muchfuntolearn:v2.0
+$
+$ docker container run muchfuntolearn:v2.0
+It's SO MUCH FUN to learn Docker containers
+I want to learn more about Docker containers
+</code></pre><h2 id=heading></h2><h2 id=wrap-it-up>Wrap it up:</h2><p>Finally, let&rsquo;s wrap up this exercise by creating a docker image for a simple real world web application.</p><p>Here is a simple nodejs hello-world app that we&rsquo;ll use.  All it does is prints &ldquo;Hello World!&rdquo; on the webpage.</p><pre><code>$ cat app.js 
+var http = require('http');
+
+//create a server object:
+http.createServer(function (req, res) {
+ res.writeHead(200, {'Content-Type': 'text/html'});
+ res.write('Hello World!'); //write a response to the client
+ res.end(); //end the response
+}).listen(3000); //the server object listens on port 8080
+$
+</code></pre><p>Here is the Dockerfile we&rsquo;ll use to build the app container image:</p><pre><code>$ cat Dockerfile 
+FROM alpine:latest
+RUN apk update &amp;&amp; apk add nodejs
+RUN mkdir -p /usr/src/app
+COPY . /usr/src/app
+WORKDIR /usr/src/app
+EXPOSE 3000 
+CMD [&quot;node&quot;,&quot;app.js&quot;]
+</code></pre><p>The Dockerfile tells Docker to install nodejs on an alpine base container image and then copy the app from the host directory to the container image work directory /usr/src/app and finally ask it to run the command &ldquo;node app.js&rdquo;.  The EXPOSE command tells Docker to allow traffic to port 3000.</p><p>Let&rsquo;s build the version 0.1 of the <em>hello-world</em> container image now:</p><pre><code>$ docker image build -t hello-world:v0.1 .
+Sending build context to Docker daemon 17.92kB
+Step 1/7 : FROM alpine:latest
+ ---&gt; 3fd9065eaf02
+Step 2/7 : RUN apk update &amp;&amp; apk add nodejs
+ ---&gt; Using cache
+ ---&gt; 928e995e38f4
+Step 3/7 : RUN mkdir -p /usr/src/app
+ ---&gt; Using cache
+ ---&gt; 5c3b1d4fa148
+Step 4/7 : COPY . /usr/src/app
+ ---&gt; Using cache
+ ---&gt; dab04cdb33d6
+Step 5/7 : WORKDIR /usr/src/app
+ ---&gt; Using cache
+ ---&gt; c3fdc62b6f66
+Step 6/7 : EXPOSE 3000
+ ---&gt; Using cache
+ ---&gt; dbe68495bcca
+Step 7/7 : CMD [&quot;node&quot;,&quot;app.js&quot;]
+ ---&gt; Using cache
+ ---&gt; 74a062a6a3c3
+Successfully built 74a062a6a3c3
+Successfully tagged hello-world:v0.1
+</code></pre><p>Use the following command to run the <em>hello-world</em> container app.  The command requests Docker to run the container in the background as a daemon [-d] and map the host port [8000] to the docker port [3000].  The nodejs HTTP server app will listen on TCP port 3000 in the container&rsquo;s network namespace.</p><pre><code>$ docker run -d -p 8000:3000 hello-world:v0.1 
+b6bbc0790c69ee95d9e977caef329f5b166c28de9f883614769058b781419bc7
+</code></pre><p>The option [-p] in the above command is the port mapping option.  It requests Docker daemon to add a port NAT entry in the host&rsquo;s NAT table as shown below:</p><pre><code>$ sudo iptables -t nat --list 
+Chain PREROUTING (policy ACCEPT)
+target prot opt source destination 
+DOCKER all -- anywhere anywhere ADDRTYPE match dst-type LOCAL
+
+Chain INPUT (policy ACCEPT)
+target prot opt source destination
+
+Chain OUTPUT (policy ACCEPT)
+target prot opt source destination 
+DOCKER all -- anywhere !localhost/8 ADDRTYPE match dst-type LOCAL
+
+Chain POSTROUTING (policy ACCEPT)
+target prot opt source destination 
+MASQUERADE all -- 172.17.0.0/16 anywhere 
+MASQUERADE tcp -- 172.17.0.2 172.17.0.2 tcp dpt:3000
+
+Chain DOCKER (2 references)
+target prot opt source destination 
+RETURN all -- anywhere anywhere 
+DNAT tcp -- anywhere anywhere tcp dpt:8000 to:172.17.0.2:3000
+</code></pre><p>Check if the container is running on the specified port.</p><pre><code>$ docker container ls
+CONTAINER ID IMAGE COMMAND CREATED STATUS PORTS NAMES
+b6bbc0790c69 hello-world:v0.1 &quot;node app.js&quot; 2 minutes ago Up 2 minutes 0.0.0.0:8000-&gt;3000/tcp agitated_zhukovsky
+</code></pre><p>Now if we open a browser in the host machine and point it to the url: http://localhost:8000 it will print the message &ldquo;Hello World!&rdquo;</p><p><img src=https://ganeshtechblog.files.wordpress.com/2018/06/hello-world1.png alt=Hello-World>{.alignnone .size-full .wp-image-903 width=&ldquo;2564&rdquo; height=&ldquo;926&rdquo;}</p><p>That&rsquo;s all folks !  Wasn&rsquo;t it so much fun to learn how to build Docker images? Pat yourselves on the back!  You have completed part-2 of the Docker container tutorial.</p><p> </p></article><section class=post-nav><ul><li><a href=http://www.ethernetresearch.com/geekzone/docker-container-tutorial-docker-swarms/><i class="fa fa-chevron-circle-left"></i>Docker Container Tutorial - Docker Swarms</a></li><li><a href=http://www.ethernetresearch.com/geekzone/microservices-architecture-pros-cons/>Microservices Architecture Pros and Cons <i class="fa fa-chevron-circle-right"></i></a></li></ul></section></main><footer><h6>Copyright © 2021 - Ethernet Research | All Rights Reserved.</h6></footer></div><script src=http://www.ethernetresearch.com/js/scripts.js></script></body></html>

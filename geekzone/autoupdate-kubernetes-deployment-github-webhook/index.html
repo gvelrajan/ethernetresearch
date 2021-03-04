@@ -1,0 +1,680 @@
+<!doctype html><html lang=en><head><title>Autoupdate Kubernetes Deployment on GitHub Webhook - Ethernet Research</title><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=description content="Ethernet Research: Actionable information about cloud technologies at your fingertips"><meta name=author content="Ganesh Velrajan"><meta property="og:title" content="Autoupdate Kubernetes Deployment on GitHub Webhook"><meta property="og:description" content="In this article, I&rsquo;ll discuss how to autoupdate a Kubernetes workload or deployment on receiving a GitHub Webhook when a new version of the app is released.
+Prerequisites For understanding and following the instructions in this demo you need to have a basic understanding and some working knowledge of the following tools."><meta property="og:type" content="article"><meta property="og:url" content="http://www.ethernetresearch.com/geekzone/autoupdate-kubernetes-deployment-github-webhook/"><meta property="og:image" content="http://www.ethernetresearch.com/images/kubernetes/kubernetes.jpg"><meta property="article:published_time" content="2020-07-25T00:00:00+00:00"><meta property="article:modified_time" content="2020-07-25T00:00:00+00:00"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content="http://www.ethernetresearch.com/images/kubernetes/kubernetes.jpg"><meta name=twitter:title content="Autoupdate Kubernetes Deployment on GitHub Webhook"><meta name=twitter:description content="In this article, I&rsquo;ll discuss how to autoupdate a Kubernetes workload or deployment on receiving a GitHub Webhook when a new version of the app is released.
+Prerequisites For understanding and following the instructions in this demo you need to have a basic understanding and some working knowledge of the following tools."><meta name=generator content="Hugo 0.79.1"><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css integrity="sha256-l85OmPOjvil/SOvVt3HnSSjzF1TUMyT9eV0c2BzEGzU=" crossorigin=anonymous><link rel=stylesheet href=http://www.ethernetresearch.com/fontawesome/css/all.min.css><link rel=stylesheet href="https://fonts.googleapis.com/css?family=Roboto+Slab|Ruda"><link rel=stylesheet type=text/css href=http://www.ethernetresearch.com/css/styles.css></head><body><div id=container><header><h1><a href=http://www.ethernetresearch.com/>Ethernet Research</a></h1><ul id=social-media><li><a href=https://linkedin.com/in/username title=LinkedIn><i class="fab fa-linkedin fa-lg"></i></a></li><li><a href=https://www.youtube.com/channel/UCnmHCstjZcevizOQ0qmANlw title=Youtube><i class="fab fa-youtube fa-lg"></i></a></li></ul><p><em>Actionable information about cloud technologies</em></p></header><nav><ul><li><a href=http://www.ethernetresearch.com/geekzone/><i class="fa-li fa fa-lg"></i><span>GeekZone</span></a></li><li><a href=http://www.ethernetresearch.com/articles/><i class="fa-li fa fa-lg"></i><span>Articles</span></a></li><li><a href=http://www.ethernetresearch.com/about/><i class="fa-li fa fa-lg"></i><span>About Us</span></a></li><li><a href=http://www.ethernetresearch.com/online-courses-training/><i class="fa-li fa fa-lg"></i><span>Online Courses</span></a></li><li><a href=http://www.ethernetresearch.com/contact/><i class="fa-li fa fa-lg"></i><span>Contact</span></a></li></ul></nav><main><article><h1>Autoupdate Kubernetes Deployment on GitHub Webhook</h1><aside><ul><li><time class=post-date datetime=2020-07-25T00:00:00Z>Jul 25, 2020</time></li><li>Categories:
+<em><a href=http://www.ethernetresearch.com/categories/geekzone>GeekZone</a>
+,
+<a href=http://www.ethernetresearch.com/categories/kubernetes>Kubernetes</a></em></li><li><em><a href=http://www.ethernetresearch.com/tags/container>#Container</a>
+,
+<a href=http://www.ethernetresearch.com/tags/docker>#Docker</a>
+,
+<a href=http://www.ethernetresearch.com/tags/kubernetes>#Kubernetes</a>
+,
+<a href=http://www.ethernetresearch.com/tags/ci/cd>#CI/CD</a>
+,
+<a href=http://www.ethernetresearch.com/tags/github>#GitHub</a>
+,
+<a href=http://www.ethernetresearch.com/tags/webhook>#Webhook</a></em></li><li>12 minute read</li></ul></aside><div class=featured_image><a href=http://www.ethernetresearch.com/geekzone/autoupdate-kubernetes-deployment-github-webhook/ title="Autoupdate Kubernetes Deployment on GitHub Webhook"><img src=http://www.ethernetresearch.com/images/kubernetes/kubernetes.jpg></a></div><p>In this article, I&rsquo;ll discuss how to autoupdate a Kubernetes workload or deployment on receiving a GitHub Webhook when a new version of the app is released.</p><h2 id=prerequisites>Prerequisites</h2><p>For understanding and following the instructions in this demo you need to have a basic understanding and some working knowledge of the following tools.</p><ul><li>GitHub</li><li>Docker</li><li>Kubernetes Cluster</li><li>Helm</li><li>SocketXP</li></ul><h2 id=continuous-deployment-strategy>Continuous Deployment Strategy</h2><p>Our goal is to upgrade our demo app in a GitOps fashion, meaning we don&rsquo;t want to upgrade whenever a new checkin happens into our app git repo but when a change or release is created in our Devops template or script git repo.</p><p>In this demo, I&rsquo;ll show you how to create a separate git repo for the helm chart of our app. Whenever a new release is tagged on the master branch for this helm chart git repo we&rsquo;ll upgrade the helm chart release in our Kubernetes Cluster, which in turn will upgrade our http-server app in our Kubernetes cluster.</p><p><img src=https://www.socketxp.com/wp-content/uploads/2020/07/Kubernetes-autoupdate-github-webhook-helm-chart.png alt=Kubernetes-autoupdate-github-webhook-helm-chart>{.aligncenter .wp-image-1198 .size-full width=&ldquo;1024&rdquo; height=&ldquo;768&rdquo;}</p><h2 id=demo-app>Demo App</h2><p>We&rsquo;ll use the same demo app we used in our last week&rsquo;s demo. I&rsquo;m displaying it again over here for convenience.</p><pre><code class=language-{.source-code} data-lang={.source-code}>$cat http-server.js
+
+var http = require('http');
+
+var port = 8080
+
+var handleRequest = function(request, response) {
+
+console.log('Received HTTP request for URL: ' + request.url);
+
+response.writeHead(200);
+
+response.end('Hello World!, v1.0');
+
+};
+
+var server = http.createServer(handleRequest);
+
+server.listen(port);
+</code></pre><p>Also the Dockerfile used to build our http-server app from our last week&rsquo;s demo.</p><pre><code class=language-{.source-code} data-lang={.source-code}>FROM alpine:latest
+
+RUN apk update &amp;&amp; apk add nodejs
+
+RUN mkdir -p /usr/src/app
+
+COPY ./http-server.js /usr/src/app
+
+WORKDIR /usr/src/app
+
+EXPOSE 8080
+
+CMD [&quot;node&quot;,&quot;http-server.js&quot;]
+</code></pre><p>Refer to our <a href=https://www.socketxp.com/webhookrelay/docker-compose-auto-update-github-webhook/><strong>last week&rsquo;s demo article</strong></a> on how to build a version 1.0 of the docker image and publish it to a DockerHub registry.</p><h2 id=kubernetes-cluster>Kubernetes Cluster</h2><p>Install Kubernetes Cluster or a Minikube Cluster following the instructions here:</p><ul><li><a href=http://www.ethernetresearch.com/geekzone/kubernetes-tutorial-how-to-install-kubernetes-on-ubuntu/>How to install Kubernetes on Ubuntu</a></li><li><a href=http://www.ethernetresearch.com/kubernetes/kubernetes-how-to-install-minikube-in-a-vm/>How to install minikube in a VM</a></li></ul><p>Check the nodes and the pods available.</p><pre><code class=language-{.source-code} data-lang={.source-code}>$kubectl get nodes
+
+NAME       STATUS   ROLES    AGE     VERSION
+
+minikube   Ready    master   3h45m   v1.18.3
+</code></pre><pre><code class=language-{.source-code} data-lang={.source-code}>$kubectl get pods
+
+No resources found in default namespace.
+
+$
+</code></pre><h2 id=helm>Helm</h2><p>I have already created an helm chart for this demo and is available at: <strong><a href=https://github.com/socketxp-com/kubernetes-webhook-autoupdate-helm-chart>https://github.com/socketxp-com/kubernetes-webhook-autoupdate-helm-chart</a></strong></p><p>But if you want to create your own helm chart follow the instructions below to install helm and create a helm chart.</p><pre><code class=language-{.source-code} data-lang={.source-code}>$ brew install helm
+</code></pre><pre><code class=language-{.source-code} data-lang={.source-code}>$ helm create http-server-chart
+
+$ ls
+
+http-server-chart
+
+$ cd http-server-chart
+
+$ ls
+
+Chart.yaml charts templates values.yaml
+
+$
+</code></pre><p>Now edit the values.yaml file and update the repository and tag fields to your app&rsquo;s docker image name and tag. Also update templates such as deployment.yaml or service.yaml under the templates folder, if required.</p><p>Commit the changes to your chart into a git repository, so that the changes/versions can be tracked. Also this will help in upgrading the corresponding workloads in a Kubernetes cluster, in a GitOps fashion.</p><h2 id=run-socketxp-on-the-master-node>Run SocketXP on the master node</h2><p>Download and install SocketXP agent on the master node of your Kubernetes cluster&rsquo;s master node. You can follow the <a href=https://www.socketxp.com/download/><strong>SocketXP download instructions here</strong></a>.</p><p>Next jump into the root directory of the git cloned chart repo and execute the below command. The repo already has the files &ldquo;update-kube.sh&rdquo; and &ldquo;filter-rules.sh&rdquo; from the last week&rsquo;s demo. The only change is in the update-kube.sh file to execute a &ldquo;helm upgrade&rdquo; command instead of &ldquo;docker-compose up -d&rdquo; command.</p><pre><code class=language-{.source-code} data-lang={.source-code}>$ cat update-kube.sh
+
+#!/bin/bash
+
+
+
+git pull
+
+helm upgrade http-server http-server-chart
+</code></pre><p>Execute the SocketXP relay command.</p><pre><code class=language-{.source-code} data-lang={.source-code}>$ socketxp relay http://localhost:8443 --exec ./update-kube.sh --filter filter-rules.json
+
+
+
+connected.
+
+Public URL -&gt; https://webhook.socketxp.com/ganeshvelrajan-rmzlayq9
+</code></pre><p>Now pick up this SocketXP Public Webhook URL and go to your GitHub Webhook Settings page and paste this URL in the Public Webhook URL text box. Make sure you set the content type of GitHub webhook to &ldquo;application/json&rdquo;. Also set the secret with your own secret. This secret will be used to validate the sender when a GitHub webhook is received at your Kubernetes Cluster master node.</p><p><img src=https://www.socketxp.com/wp-content/uploads/2020/07/Kubernetes-Github-Webhook-.png alt="Kubernetes Github Webhook-socketxp">{.aligncenter .wp-image-1201 .size-full width=&ldquo;2484&rdquo; height=&ldquo;1802&rdquo;}</p><h2 id=install-helm-chart>Install Helm Chart</h2><p>Install the helm chart manually using the following command and bring up the http-server app in the kubernetes cluster. We need to do this only once when we bring up the app for the very first time. Thereafter, we&rsquo;ll automate the upgrade process using SocketXP.</p><pre><code class=language-{.source-code} data-lang={.source-code}>$ls
+
+LICENSE filter-rules.json update-kube.sh
+
+README.md http-server-chart
+
+$helm install http-server http-server-chart/
+
+NAME: http-server
+
+LAST DEPLOYED: Fri Jul 10 11:59:39 2020
+
+NAMESPACE: default
+
+STATUS: deployed
+
+REVISION: 1
+
+NOTES:
+
+1. Get the application URL by running these commands:
+
+export NODE_PORT=$(kubectl get --namespace default -o jsonpath=&quot;{.spec.ports[0].nodePort}&quot; services http-server-http-server-chart)
+
+export NODE_IP=$(kubectl get nodes --namespace default -o jsonpath=&quot;{.items[0].status.addresses[0].address}&quot;)
+
+echo http://$NODE_IP:$NODE_PORT
+</code></pre><p>Let&rsquo;s follow the instructions in the above output and copy paste the above commands.</p><pre><code class=language-{.source-code} data-lang={.source-code}>$export NODE_PORT=$(kubectl get --namespace default -o jsonpath=&quot;{.spec.ports[0].nodePort}&quot; services http-server-http-server-chart)
+
+export NODE_IP=$(kubectl get nodes --namespace default -o jsonpath=&quot;{.items[0].status.addresses[0].address}&quot;)
+
+$  export NODE_IP=$(kubectl get nodes --namespace default -o jsonpath=&quot;{.items[0].status.addresses[0].address}&quot;)
+
+$echo http://$NODE_IP:$NODE_PORT
+
+http://192.168.99.100:32194
+
+$
+</code></pre><p>Let&rsquo;s try to access our http-server application at the above mentioned URL.</p><pre><code class=language-{.source-code} data-lang={.source-code}>$curl http://192.168.99.100:32194
+
+Hello World!, v1.0
+</code></pre><p>Great. Our app is running version 1.0 as expected.</p><p>Next verify the helm release version currently deployed.</p><pre><code class=language-{.source-code} data-lang={.source-code}>$helm ls
+
+NAME        NAMESPACE REVISION UPDATED                              STATUS  CHART                  APP VERSION
+
+http-server default  1        2020-07-10 11:59:39.651311 +0530 IST deployed http-server-chart-0.1.0 1.16.0
+</code></pre><h2 id=begin-demo---upgrade-the-app-and-the-chart>Begin Demo - Upgrade the app and the chart</h2><p>Now let&rsquo;s edit our http-server app like we did in the last week&rsquo;s demo and push a docker container image version 2.0 to DockerHub. Please refer to our last week&rsquo;s demo article if you forgot the instruction for doing so.</p><p>Next let&rsquo;s edit the helm-chart and upgrade the image version and the chart version to 2.0 and 0.2.0 respectively.</p><pre><code class=language-{.source-code} data-lang={.source-code}>$vim http-server-chart/values.yaml
+
+# Default values for http-server-chart.
+
+# This is a YAML-formatted file.
+
+# Declare variables to be passed into your templates.
+
+
+
+replicaCount: 1
+
+
+
+image:
+
+repository: gvelrajan/http-server
+
+pullPolicy: IfNotPresent
+
+# Overrides the image tag whose default is the chart appVersion.
+
+tag: &quot;v2.0&quot;
+
+...
+
+...
+</code></pre><pre><code class=language-{.source-code} data-lang={.source-code}>...
+
+# This is the chart version. This version number should be incremented each time you make changes
+
+# to the chart and its templates, including the app version.
+
+# Versions are expected to follow Semantic Versioning (https://semver.org/)
+
+version: 0.2.0
+
+...
+
+...
+</code></pre><p>Commit the changes and push to GitHub.</p><pre><code class=language-{.source-code} data-lang={.source-code}>$git add .
+
+$git commit -m &quot;image version and chart version updated&quot;
+
+[master 1765b2e] image version and chart version updated
+
+4 files changed, 35 insertions(+), 2 deletions(-)
+
+create mode 100644 filter-rules.json
+
+create mode 100755 update-kube.sh
+
+$git push
+
+Counting objects: 7, done.
+
+Delta compression using up to 8 threads.
+
+Compressing objects: 100% (7/7), done.
+
+Writing objects: 100% (7/7), 839 bytes | 839.00 KiB/s, done.
+
+Total 7 (delta 3), reused 0 (delta 0)
+
+remote: Resolving deltas: 100% (3/3), completed with 3 local objects.
+
+To https://github.com/socketxp-com/kubernetes-webhook-autoupdate-helm-chart.git
+
+2f12153..1765b2e  master -&gt; master
+</code></pre><p>As soon as we do git push for the chart into its online repo, GitHub will trigger a webhook notification for the git push event. SocketXP will receive the webhook, validate the signature and try to match it with the fiter rules. Since this is not a release webhook, SocketXP will throw a mismatch error and not further process this webhook.</p><pre><code class=language-{.source-code} data-lang={.source-code}>Connected.
+
+Public URL -&gt; https://webhook.socketxp.com/ganeshvelrajan-rmzlayq9
+
+
+
+Webhook received:
+
+POST / HTTP/1.1
+
+Host: webhook.socketxp.com
+
+Accept: */*
+
+Accept-Encoding: gzip
+
+Content-Length: 9397
+
+Content-Type: application/json
+
+User-Agent: GitHub-Hookshot/f2f2346
+
+X-Github-Delivery: 4aba8354-c279-11ea-980e-6cd6cfda12a3
+
+X-Github-Event: push
+
+X-Hub-Signature: sha1=14e1f0a3d368d9b5dadd7d41cd575af2f45065ce
+
+
+
+{&quot;ref&quot;:&quot;refs/heads/master&quot;,&quot;before&quot;:&quot;2f12153ef944b939bc81712e1d047d281d2deabe&quot;,&quot;after&quot;:&quot;1765b2ecd58ad3c6d3fec15c7b3198063b543405&quot;,&quot;repository&quot;:{&quot;id&quot;:278398971,&quot;node_id&quot;:&quot;MDEwOlJlcG9zaXRvcnkyNzgzOTg5NzE=&quot;,&quot;name&quot;:&quot;kubernetes-webhook-autoupdate-helm-chart&quot;,
+
+...
+
+]}}
+
+
+
+#Rule: Webhook signature matched.
+
+#Rule: ref in payload didn't match
+
+Webhook received didn't match with the filter rules.
+
+Command not executed.
+</code></pre><h2 id=release-version-020-of-the-chart>Release version 0.2.0 of the chart</h2><p>So this proves that our http-server app will not be upgraded on receiving just any ad-hoc wehbook notifications from GitHub. It gets upgraded only on receiving an official release webhook for the app&rsquo;s helm chart.</p><p>Now, let&rsquo;s go ahead and create an official release version 0.2.0 of the helm chart for our app. We do this in the GitHub release page for our app&rsquo;s helm-chart repo.</p><p>[ Note: But before doing this make sure you update the print string in our http-server app to print &ldquo;v2.0&rdquo;.  Also build a new Docker container image for the upgraded app and tag it as v2.0.   Refer to our last week&rsquo;d demo if you need to know how to perform these actions]</p><p><img src=https://www.socketxp.com/wp-content/uploads/2020/07/Helm-Chart-Release-Version-0.2.0.png alt="Kubernetes Continuous Deployment Helm Chart GitHub Webhook">{.aligncenter .wp-image-1202 .size-full width=&ldquo;2106&rdquo; height=&ldquo;1184&rdquo;}</p><p>SocketXP will receive the release webhook from GitHub. It will process the webhook, validate the signature and match the ref field in the webhook payload with the filter rules.</p><pre><code class=language-{.source-code} data-lang={.source-code}>Webhook received:
+
+POST / HTTP/1.1
+
+Host: webhook.socketxp.com
+
+Accept: */*
+
+Accept-Encoding: gzip
+
+Content-Length: 8725
+
+Content-Type: application/json
+
+User-Agent: GitHub-Hookshot/f2f2346
+
+X-Github-Delivery: b08b5ec8-c27a-11ea-8774-72206af92c06
+
+X-Github-Event: push
+
+X-Hub-Signature: sha1=d6fefb9919e8b322226f6dcd485bd2f2591e80c8
+
+
+
+{&quot;ref&quot;:&quot;refs/tags/v0.2.0&quot;,&quot;before&quot;:&quot;0000000000000000000000000000000000000000&quot;,&quot;after&quot;:&quot;1765b2ecd58ad3c6d3fec15c7b3198063b543405&quot;,&quot;repository&quot;:{&quot;id&quot;:278398971,&quot;node_id&quot;:&quot;MDEwOlJlcG9zaXRvcnkyNzgzOTg5NzE=&quot;,&quot;name&quot;:&quot;kubernetes-webhook-autoupdate-helm-chart&quot;,&quot;full_name&quot;:&quot;socketxp-com/kubernetes-webhook-autoupdate-helm-chart&quot;,
+
+...
+
+...
+
+
+
+]}}
+
+
+
+#Rule: Webhook signature matched.
+
+#Rule: ref in payload matched.
+
+All rules matched.
+
+
+
+Executing command:  [./update-kube.sh]
+
+From https://github.com/socketxp-com/kubernetes-webhook-autoupdate-helm-chart
+
+* [new tag]         v0.2.0     -&gt; v0.2.0
+
+Already up to date.
+
+Current branch master is up to date.
+
+Release &quot;http-server&quot; has been upgraded. Happy Helming!
+
+NAME: http-server
+
+LAST DEPLOYED: Fri Jul 10 12:42:09 2020
+
+NAMESPACE: default
+
+STATUS: deployed
+
+REVISION: 2
+
+NOTES:
+
+1. Get the application URL by running these commands:
+
+export NODE_PORT=$(kubectl get --namespace default -o jsonpath=&quot;{.spec.ports[0].nodePort}&quot; services http-server-http-server-chart)
+
+export NODE_IP=$(kubectl get nodes --namespace default -o jsonpath=&quot;{.items[0].status.addresses[0].address}&quot;)
+
+echo http://$NODE_IP:$NODE_PORT
+</code></pre><p>Let&rsquo;s follow the instructions above output and copy paste the above commands in a separate terminal.</p><pre><code class=language-{.source-code} data-lang={.source-code}>$  export NODE_PORT=$(kubectl get --namespace default -o jsonpath=&quot;{.spec.ports[0].nodePort}&quot; services http-server-http-server-chart)
+
+$  export NODE_IP=$(kubectl get nodes --namespace default -o jsonpath=&quot;{.items[0].status.addresses[0].address}&quot;)
+
+$  echo http://$NODE_IP:$NODE_PORT
+
+http://192.168.99.100:32194
+</code></pre><p>Now, let&rsquo;s access the URL using curl.</p><pre><code class=language-{.source-code} data-lang={.source-code}>$curl http://192.168.99.100:32194
+
+Hello World!, v2.0
+</code></pre><p>Also confirm the kubernetes workload(pod) has the correct versions.</p><pre><code class=language-{.source-code} data-lang={.source-code}>$kubectl describe  pods
+
+Name:         http-server-http-server-chart-5947946f5f-vb5cn
+
+Namespace:    default
+
+Priority:     0
+
+Node:         minikube/192.168.99.100
+
+Start Time:   Fri, 10 Jul 2020 02:30:00 +0530
+
+Labels:       app.kubernetes.io/instance=http-server
+
+app.kubernetes.io/name=http-server-chart
+
+pod-template-hash=5947946f5f
+
+Annotations:
+
+Status:       Running
+
+IP:           172.17.0.5
+
+IPs:
+
+IP:           172.17.0.5
+
+Controlled By:  ReplicaSet/http-server-http-server-chart-5947946f5f
+
+Containers:
+
+http-server-chart:
+
+Container ID:   docker://7deb29b8786bc474374be82b27c33858cad8ec4b86754c29ad6467bf41f4ecc9
+
+Image:          gvelrajan/http-server:v2.0
+
+Image ID:       docker-pullable://gvelrajan/http-server@sha256:2a9ee82f76758758c77659260091380b20e3b3d095efdc6480d66e47c5842476
+
+Port:           8080/TCP
+
+Host Port:      0/TCP
+
+State:          Running
+
+Started:      Fri, 10 Jul 2020 02:30:03 +0530
+
+Ready:          True
+
+Restart Count:  0
+
+Liveness:       http-get http://:http/ delay=0s timeout=1s period=10s #success=1 #failure=3
+
+Readiness:      http-get http://:http/ delay=0s timeout=1s period=10s #success=1 #failure=3
+
+Environment:
+
+Mounts:
+
+/var/run/secrets/kubernetes.io/serviceaccount from http-server-http-server-chart-token-rmppc (ro)
+
+Conditions:
+
+Type              Status
+
+Initialized       True
+
+Ready             True
+
+ContainersReady   True
+
+PodScheduled      True
+
+Volumes:
+
+http-server-http-server-chart-token-rmppc:
+
+Type:        Secret (a volume populated by a Secret)
+
+SecretName:  http-server-http-server-chart-token-rmppc
+
+Optional:    false
+
+QoS Class:       BestEffort
+
+Node-Selectors:
+
+Tolerations:     node.kubernetes.io/not-ready:NoExecute for 300s
+
+node.kubernetes.io/unreachable:NoExecute for 300s
+
+Events:
+
+Type    Reason     Age   From               Message
+
+----    ------     ----  ----               -------
+
+Normal  Scheduled  10h   default-scheduler  Successfully assigned default/http-server-http-server-chart-5947946f5f-vb5cn to minikube
+
+Normal  Pulled     10h   kubelet, minikube  Container image &quot;gvelrajan/http-server:v2.0&quot; already present on machine
+
+Normal  Created    10h   kubelet, minikube  Created container http-server-chart
+
+Normal  Started    10h   kubelet, minikube  Started container http-server-chart
+
+$
+
+
+</code></pre><p>Also let&rsquo;s check the helm release version currently deployed.</p><pre><code class=language-{.source-code} data-lang={.source-code}>$helm ls
+
+NAME        NAMESPACE REVISION UPDATED                              STATUS  CHART                  APP VERSION
+
+http-server default  2        2020-07-10 12:42:09.288038 +0530 IST deployed http-server-chart-0.2.0 1.16.0
+
+$
+</code></pre><p>Everything confirms that we are have successfully upgraded our app to version 2.0 by upgrading the helm chart release version to 0.2.0</p><h2 id=rolling-back-to-the-previous-working-version>Rolling back to the previous working version</h2><p>Suppose, the upgrade to version 2.0 of the app introduced some severe bugs or problems that is unacceptable by any user, we would want to quickly go back to the previous working version, so that customers are not affected by our upgrade.</p><p>Helm makes the process of rollback very simple. Let&rsquo;s do it. We&rsquo;ll rollback to revision #1 of the helm chart from revision #2.</p><pre><code class=language-{.source-code} data-lang={.source-code}>$helm rollback http-server 1
+
+Rollback was a success! Happy Helming!
+
+$helm ls
+
+NAME        NAMESPACE REVISION UPDATED                              STATUS  CHART                  APP VERSION
+
+http-server default  3        2020-07-10 12:53:04.755063 +0530 IST deployed http-server-chart-0.1.0 1.16.0
+</code></pre><p>Curl the app&rsquo;s web URL and verify if the rollback is successful.</p><pre><code class=language-{.source-code} data-lang={.source-code}>$curl http://192.168.99.100:32194
+
+Hello World!, v1.0
+</code></pre><p>Verify the pods running in the Kubernetes cluster have the right version. Notice that the pod running the old version of our http-server app is terminating and the pod running the new version is up and running.</p><pre><code class=language-{.source-code} data-lang={.source-code}>$kubectl describe  pods
+
+Name:                      http-server-http-server-chart-5947946f5f-vb5cn
+
+Namespace:                 default
+
+Priority:                  0
+
+Node:                      minikube/192.168.99.100
+
+Start Time:                Fri, 10 Jul 2020 02:30:00 +0530
+
+Labels:                    app.kubernetes.io/instance=http-server
+
+app.kubernetes.io/name=http-server-chart
+
+pod-template-hash=5947946f5f
+
+Annotations:
+
+Status:                    Terminating (lasts 10h)
+
+Termination Grace Period:  30s
+
+IP:                        172.17.0.5
+
+IPs:
+
+IP:           172.17.0.5
+
+Controlled By:  ReplicaSet/http-server-http-server-chart-5947946f5f
+
+Containers:
+
+http-server-chart:
+
+Container ID:   docker://7deb29b8786bc474374be82b27c33858cad8ec4b86754c29ad6467bf41f4ecc9
+
+Image:          gvelrajan/http-server:v2.0
+
+Image ID:       docker-pullable://gvelrajan/http-server@sha256:2a9ee82f76758758c77659260091380b20e3b3d095efdc6480d66e47c5842476
+
+Port:           8080/TCP
+
+Host Port:      0/TCP
+
+State:          Running
+
+Started:      Fri, 10 Jul 2020 02:30:03 +0530
+
+Ready:          True
+
+Restart Count:  0
+
+Liveness:       http-get http://:http/ delay=0s timeout=1s period=10s #success=1 #failure=3
+
+Readiness:      http-get http://:http/ delay=0s timeout=1s period=10s #success=1 #failure=3
+
+Environment:
+
+Mounts:
+
+/var/run/secrets/kubernetes.io/serviceaccount from http-server-http-server-chart-token-rmppc (ro)
+
+Conditions:
+
+Type              Status
+
+Initialized       True
+
+Ready             True
+
+ContainersReady   True
+
+PodScheduled      True
+
+Volumes:
+
+http-server-http-server-chart-token-rmppc:
+
+Type:        Secret (a volume populated by a Secret)
+
+SecretName:  http-server-http-server-chart-token-rmppc
+
+Optional:    false
+
+QoS Class:       BestEffort
+
+Node-Selectors:
+
+Tolerations:     node.kubernetes.io/not-ready:NoExecute for 300s
+
+node.kubernetes.io/unreachable:NoExecute for 300s
+
+Events:
+
+Type    Reason     Age   From               Message
+
+----    ------     ----  ----               -------
+
+Normal  Scheduled  10h   default-scheduler  Successfully assigned default/http-server-http-server-chart-5947946f5f-vb5cn to minikube
+
+Normal  Pulled     10h   kubelet, minikube  Container image &quot;gvelrajan/http-server:v2.0&quot; already present on machine
+
+Normal  Created    10h   kubelet, minikube  Created container http-server-chart
+
+Normal  Started    10h   kubelet, minikube  Started container http-server-chart
+
+Normal  Killing    10h   kubelet, minikube  Stopping container http-server-chart
+
+
+
+
+
+Name:         http-server-http-server-chart-bdd75ff4-7jmbx
+
+Namespace:    default
+
+Priority:     0
+
+Node:         minikube/192.168.99.100
+
+Start Time:   Fri, 10 Jul 2020 02:40:56 +0530
+
+Labels:       app.kubernetes.io/instance=http-server
+
+app.kubernetes.io/name=http-server-chart
+
+pod-template-hash=bdd75ff4
+
+Annotations:
+
+Status:       Running
+
+IP:           172.17.0.4
+
+IPs:
+
+IP:           172.17.0.4
+
+Controlled By:  ReplicaSet/http-server-http-server-chart-bdd75ff4
+
+Containers:
+
+http-server-chart:
+
+Container ID:   docker://239aadd09eb54185b3aa559d5ba3a89f2cb99a30c5b340270b834f9e25de24cb
+
+Image:          gvelrajan/http-server:v1.0
+
+Image ID:       docker-pullable://gvelrajan/http-server@sha256:07e70e778e1002519064503ece0d334291f4fbb7a7196b894f605ff5e3076e18
+
+Port:           8080/TCP
+
+Host Port:      0/TCP
+
+State:          Running
+
+Started:      Fri, 10 Jul 2020 02:40:57 +0530
+
+Ready:          True
+
+Restart Count:  0
+
+Liveness:       http-get http://:http/ delay=0s timeout=1s period=10s #success=1 #failure=3
+
+Readiness:      http-get http://:http/ delay=0s timeout=1s period=10s #success=1 #failure=3
+
+Environment:
+
+Mounts:
+
+/var/run/secrets/kubernetes.io/serviceaccount from http-server-http-server-chart-token-rmppc (ro)
+
+Conditions:
+
+Type              Status
+
+Initialized       True
+
+Ready             True
+
+ContainersReady   True
+
+PodScheduled      True
+
+Volumes:
+
+http-server-http-server-chart-token-rmppc:
+
+Type:        Secret (a volume populated by a Secret)
+
+SecretName:  http-server-http-server-chart-token-rmppc
+
+Optional:    false
+
+QoS Class:       BestEffort
+
+Node-Selectors:
+
+Tolerations:     node.kubernetes.io/not-ready:NoExecute for 300s
+
+node.kubernetes.io/unreachable:NoExecute for 300s
+
+Events:
+
+Type    Reason     Age   From               Message
+
+----    ------     ----  ----               -------
+
+Normal  Scheduled  10h   default-scheduler  Successfully assigned default/http-server-http-server-chart-bdd75ff4-7jmbx to minikube
+
+Normal  Pulled     10h   kubelet, minikube  Container image &quot;gvelrajan/http-server:v1.0&quot; already present on machine
+
+Normal  Created    10h   kubelet, minikube  Created container http-server-chart
+
+Normal  Started    10h   kubelet, minikube  Started container http-server-chart
+
+$
+</code></pre><p>That&rsquo;s all folks!! I hope you were able to follow the instructions and auto deploy your app in Kubernetes using SocketXP and Helm chart in a GitOps fashion.</p><h2 id=conclusion>Conclusion</h2><p>SocketXP and Helm are two great tools to setup a full-automated Continuous Deployment(CD) pipeline for your app running in your Kubernetes Cluster. Though you might want to expose your app ( a front-end microservice) running in your Kubernetes Cluster to the internet, you wouldn&rsquo;t want to and shouldn&rsquo;t expose your Kubernetes Cluster itself to the internet.</p><p>When you are not exposing the Kubernetes Cluster to the internet, it may be challenging to receive webhook notifications from GitHub, Gitlab, DockerHub, GCR and other online version control and artifact repositories. SocketXP solves this problem by quickly creating a secure webhook relay tunnel between the online registry and your Kubernetes Cluster, so that webhooks could reach your private Kubernetes Cluster.</p><p>SocketXP is a freemium online webhook relay service, which has free and paid plans for developers, businesses and enterprise customers. <a href=https://portal.socketxp.com><strong>Sign up for your free SocketXP account here</strong></a>.</p></article><section class=post-nav><ul><li><a href=http://www.ethernetresearch.com/geekzone/docker-compose-auto-update-on-github-webhook/><i class="fa fa-chevron-circle-left"></i>Docker Compose Auto Update on GitHub Webhook</a></li></ul></section></main><footer><h6>Copyright © 2021 - Ethernet Research | All Rights Reserved.</h6></footer></div><script src=http://www.ethernetresearch.com/js/scripts.js></script></body></html>

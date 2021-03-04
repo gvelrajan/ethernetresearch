@@ -1,0 +1,218 @@
+<!doctype html><html lang=en><head><title>Docker Container Tutorial - Docker Swarms - Ethernet Research</title><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=description content="Ethernet Research: Actionable information about cloud technologies at your fingertips"><meta name=author content="Ganesh Velrajan"><meta property="og:title" content="Docker Container Tutorial - Docker Swarms"><meta property="og:description" content="Docker Swarm is a very useful management tool when we have more than one container and more than one host to manage.
+In other words, when we have a &ldquo;swarm of containers&rdquo; it is nearly impossible to manage each one of them individually."><meta property="og:type" content="article"><meta property="og:url" content="http://www.ethernetresearch.com/geekzone/docker-container-tutorial-docker-swarms/"><meta property="og:image" content="http://www.ethernetresearch.com/images/docker/docker.png"><meta property="article:published_time" content="2018-07-19T00:00:00+00:00"><meta property="article:modified_time" content="2018-07-19T00:00:00+00:00"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content="http://www.ethernetresearch.com/images/docker/docker.png"><meta name=twitter:title content="Docker Container Tutorial - Docker Swarms"><meta name=twitter:description content="Docker Swarm is a very useful management tool when we have more than one container and more than one host to manage.
+In other words, when we have a &ldquo;swarm of containers&rdquo; it is nearly impossible to manage each one of them individually."><meta name=generator content="Hugo 0.79.1"><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css integrity="sha256-l85OmPOjvil/SOvVt3HnSSjzF1TUMyT9eV0c2BzEGzU=" crossorigin=anonymous><link rel=stylesheet href=http://www.ethernetresearch.com/fontawesome/css/all.min.css><link rel=stylesheet href="https://fonts.googleapis.com/css?family=Roboto+Slab|Ruda"><link rel=stylesheet type=text/css href=http://www.ethernetresearch.com/css/styles.css></head><body><div id=container><header><h1><a href=http://www.ethernetresearch.com/>Ethernet Research</a></h1><ul id=social-media><li><a href=https://linkedin.com/in/username title=LinkedIn><i class="fab fa-linkedin fa-lg"></i></a></li><li><a href=https://www.youtube.com/channel/UCnmHCstjZcevizOQ0qmANlw title=Youtube><i class="fab fa-youtube fa-lg"></i></a></li></ul><p><em>Actionable information about cloud technologies</em></p></header><nav><ul><li><a href=http://www.ethernetresearch.com/geekzone/><i class="fa-li fa fa-lg"></i><span>GeekZone</span></a></li><li><a href=http://www.ethernetresearch.com/articles/><i class="fa-li fa fa-lg"></i><span>Articles</span></a></li><li><a href=http://www.ethernetresearch.com/about/><i class="fa-li fa fa-lg"></i><span>About Us</span></a></li><li><a href=http://www.ethernetresearch.com/online-courses-training/><i class="fa-li fa fa-lg"></i><span>Online Courses</span></a></li><li><a href=http://www.ethernetresearch.com/contact/><i class="fa-li fa fa-lg"></i><span>Contact</span></a></li></ul></nav><main><article><h1>Docker Container Tutorial - Docker Swarms</h1><aside><ul><li><time class=post-date datetime=2018-07-19T00:00:00Z>Jul 19, 2018</time></li><li>Categories:
+<em><a href=http://www.ethernetresearch.com/categories/geekzone>GeekZone</a>
+,
+<a href=http://www.ethernetresearch.com/categories/docker>Docker</a></em></li><li><em><a href=http://www.ethernetresearch.com/tags/geekzone>#GeekZone</a>
+,
+<a href=http://www.ethernetresearch.com/tags/docker>#Docker</a>
+,
+<a href=http://www.ethernetresearch.com/tags/kubernetes>#Kubernetes</a>
+,
+<a href=http://www.ethernetresearch.com/tags/docker-swarm>#Docker Swarm</a></em></li><li>8 minute read</li></ul></aside><div class=featured_image><a href=http://www.ethernetresearch.com/geekzone/docker-container-tutorial-docker-swarms/ title="Docker Container Tutorial - Docker Swarms"><img src=http://www.ethernetresearch.com/images/docker/docker.png></a></div><p>Docker Swarm is a very useful management tool when we have more than one container and more than one host to manage.</p><p>In other words, when we have a &ldquo;swarm of containers&rdquo; it is nearly impossible to manage each one of them individually.  We need a management software or tool to manage a swarm of containers.  Docker Swarm is a software tool that does the job.</p><p>In this tutorial, we&rsquo;ll discuss how to work with Docker Swarms to manage Docker Containers.</p><h3 id=initializing-docker-swarm>Initializing Docker Swarm:</h3><p>A Docker swarm consists of manager and worker nodes.  There can be multiple manager nodes to provide redundancy.  One of the manager nodes will become a leader node and all others will be in backup mode.  Manager nodes are used for configuring and managing the swarm nodes.   Similarly, there can be multiple worker nodes to load-balance the container workloads between them.</p><p>Let&rsquo;s initialize a Docker Swarm and create a manager node.  In this tutorial, we will have only one manager node and one worker node.  Each node can be a physical host or a virtual machine host.</p><pre><code>manager$ docker swarm init --advertise-addr $(hostname -i)
+Swarm initialized: current node (w69ubdlip5mou1dluuvcb76qx) is now a manager.
+
+To add a worker to this swarm, run the following command:
+
+docker swarm join --token SWMTKN-1-3kdognqu7fy07fxkp5jhl30752dhmxtdevg3bu3cfm64c185fm-8vtuu2y46dgtgxb8apajzeh0z 192.168.0.13:2377
+
+To add a manager to this swarm, run 'docker swarm join-token manager' and follow the instructions.
+</code></pre><p>Next join the Docker swarm from the worker node using the token provided by the manager node.</p><pre><code>worker$ docker swarm join --token SWMTKN-1-3kdognqu7fy07fxkp5jhl30752dhmxtdevg3bu3cfm64c185fm-8vtuu2y46dgtgxb8apajzeh0z 192.168.0.13:2377
+This node joined a swarm as a worker.
+</code></pre><p>List the nodes in the swarm by running the following command in the master node only.</p><pre><code>manager$ docker node ls
+ID HOSTNAME STATUS AVAILABILITY MANAGER STATUS ENGINE VERSION
+w69ubdlip5mou1dluuvcb76qx * node1 Ready Active Leader 18.03.1-ce
+2ojpw5poh6s33ep9e4o6q509v node2 Ready Active 18.03.1-ce
+</code></pre><p>The above output shows that the manager node is also the leader node because there is only one manager node configured in the swarm.  Typically production environment would have multiple manager nodes for redundancy.</p><p>If we execute the same command in the worker node it will complain that it is not a master to execute any swarm management commands.</p><pre><code>worker$ docker node ls
+Error response from daemon: This node is not a swarm manager. Worker nodes can't be used to view or modify cluster state. Please run this command on a manager node or promote the current node to a manager.
+</code></pre><p> </p><h3 id=clone-the-voting-app>Clone the Voting App:</h3><p>Let&rsquo;s download the sample voting app from the Github.  Please make sure you run this command in the master node.</p><pre><code>manager$ git clone https://github.com/docker/example-voting-app
+Cloning into 'example-voting-app'...
+remote: Counting objects: 482, done.
+remote: Total 482 (delta 0), reused 0 (delta 0), pack-reused 482
+Receiving objects: 100% (482/482), 229.43 KiB | 13.50 MiB/s, done.
+Resolving deltas: 100% (179/179), done.
+
+manager$ cd example-voting-app
+
+manager$ ls
+LICENSE docker-stack.yml
+MAINTAINERS dockercloud.yml
+README.md k8s-specifications
+architecture.png result
+docker-compose-javaworker.yml vote
+docker-compose-simple.yml worker
+docker-compose.yml
+</code></pre><p>Let&rsquo;s check the contents of the docker-stack.yml file.  It will have instructions on how each services in a stack should be instantiated and configured.</p><pre><code>manager$ cat docker-stack.yml
+version: &quot;3&quot;
+services:
+
+redis:
+ image: redis:alpine
+ ports:
+ - &quot;6379&quot;
+ networks:
+ - frontend
+ deploy:
+ replicas: 1
+ update_config:
+ parallelism: 2
+ delay: 10s
+ restart_policy:
+ condition: on-failure
+ db:
+ image: postgres:9.4
+ volumes:
+ - db-data:/var/lib/postgresql/data
+ networks:
+ - backend
+ deploy:
+ placement:
+ constraints: [node.role == manager]
+ vote:
+ image: dockersamples/examplevotingapp_vote:before
+ ports:
+ - 5000:80
+ networks:
+ - frontend
+ depends_on:
+ - redis
+ deploy:
+ replicas: 2
+ update_config:
+ parallelism: 2
+ restart_policy:
+ condition: on-failure
+ result:
+ image: dockersamples/examplevotingapp_result:before
+ ports:
+ - 5001:80
+ networks:
+ - backend
+ depends_on:
+ - db
+ deploy:
+ replicas: 1
+ update_config:
+ parallelism: 2
+ delay: 10s
+ restart_policy:
+ condition: on-failure
+
+worker:
+ image: dockersamples/examplevotingapp_worker
+ networks:
+ - frontend
+ - backend
+ deploy:
+ mode: replicated
+ replicas: 1
+ labels: [APP=VOTING]
+ restart_policy:
+ condition: on-failure
+ delay: 10s
+ max_attempts: 3
+ window: 120s
+ placement:
+ constraints: [node.role == manager]
+
+visualizer:
+ image: dockersamples/visualizer:stable
+ ports:
+ - &quot;8080:8080&quot;
+ stop_grace_period: 1m30s
+ volumes:
+ - &quot;/var/run/docker.sock:/var/run/docker.sock&quot;
+ deploy:
+ placement:
+ constraints: [node.role == manager]
+
+networks:
+ frontend:
+ backend:
+
+volumes:
+ db-data:
+</code></pre><h3 id=deploy-a-stack>Deploy a Stack:</h3><p>A stack is a group of services that are usually deployed together, such as a frontend service and a backend service that together forms an application stack.  Each service can be made up of one or more container instances called tasks.  For example, there can be multiple instances of the frontend container spawned to handle more traffic. Each such container instance is a task of the frontend service.</p><p>Let&rsquo;s deploy the stack from the manager console using the docker-stack.yml file.</p><pre><code>manager$ docker stack deploy --compose-file=docker-stack.yml voting_stack
+Creating network voting_stack_backend
+Creating network voting_stack_default
+Creating network voting_stack_frontend
+Creating service voting_stack_vote
+Creating service voting_stack_result
+Creating service voting_stack_worker
+Creating service voting_stack_visualizer
+Creating service voting_stack_redis
+Creating service voting_stack_db
+
+manager$ docker stack ls
+NAME SERVICES
+voting_stack 6
+</code></pre><p>Here is the command to list the services spawned for a given stack.  Note in the below output that the &ldquo;voting_stack_vote&rdquo; service has 2 replicas, as we have instructed in the docker-stack.yml file.  These two replicas are the 2 tasks of the &ldquo;voting_stack_vote&rdquo; service.</p><pre><code>manager$ docker stack services voting_stack
+ID NAME MODE REPLICAS IMAGE PORTS
+070sq2hxkv5i voting_stack_db replicated 1/1 postgres:9.4
+7p20869dlwdq voting_stack_vote replicated 2/2 dockersamples/examplevotingapp_vote:before *:5000-&gt;80/tcp
+lo0sdggwktfh voting_stack_redis replicated 1/1 redis:alpine *:30000-&gt;6379/tcp
+m02xt0qcqyvd voting_stack_visualizer replicated 1/1 dockersamples/visualizer:stable *:8080-&gt;8080/tcp
+maxc947eok0l voting_stack_result replicated 1/1 dockersamples/examplevotingapp_result:before *:5001-&gt;80/tcp
+smhw70zh0qb1 voting_stack_worker replicated 1/1 dockersamples/examplevotingapp_worker:latest
+</code></pre><p>To display the replicas ( or tasks) associated with a service, execute the following command.</p><pre><code>manager$ docker service ps voting_stack_vote
+ID NAME IMAGE NODE DESIRED STATE CURRENT STATE ERROR PORTS
+aabui7rdmc4v voting_stack_vote.1 dockersamples/examplevotingapp_vote:before node1 Running Running 7 minutes ago
+jd1wzdyq3bw5 voting_stack_vote.2 dockersamples/examplevotingapp_vote:before node2 Running Running 7 minutes ago
+</code></pre><p>If for some reason, after casting votes, people throng the result website &ldquo;voting_stack_result&rdquo; in the voting app above, we may have to scale up that service.  To scale up a service, increase the number of replicas or tasks or containers spawned for the service, using the following command.</p><pre><code>manager$ docker service scale voting_stack_result=5
+voting_stack_result scaled to 5
+overall progress: 5 out of 5 tasks
+1/5: running
+2/5: running
+3/5: running
+4/5: running
+5/5: running
+verify: Service converged
+</code></pre><p>Similarly, you can scaled down a service by reduce the count in the above command.</p><pre><code>manager$ docker service scale voting_stack_result=3
+voting_stack_result scaled to 3
+overall progress: 3 out of 3 tasks
+1/3: running
+2/3: running
+3/3: running
+verify: Service converged
+
+manager$ docker stack services voting_stack
+ID NAME MODE REPLICAS IMAGE PORTS
+070sq2hxkv5i voting_stack_db replicated 1/1 postgres:9.4
+7p20869dlwdq voting_stack_vote replicated 2/2 dockersamples/examplevotingapp_vote:before *:5000-&gt;80/tcp
+lo0sdggwktfh voting_stack_redis replicated 1/1 redis:alpine *:30000-&gt;6379/tcp
+m02xt0qcqyvd voting_stack_visualizer replicated 1/1 dockersamples/visualizer:stable *:8080-&gt;8080/tcp
+maxc947eok0l voting_stack_result replicated 3/3 dockersamples/examplevotingapp_result:before *:5001-&gt;80/tcp
+smhw70zh0qb1 voting_stack_worker replicated 1/1 dockersamples/examplevotingapp_worker:latest
+
+manager$ docker ps
+CONTAINER ID IMAGE COMMAND CREATED STATUS PORTS NAMES
+791115ff9838 dockersamples/examplevotingapp_worker:latest &quot;/bin/sh -c 'dotnet …&quot; About an hour ago Up About an hour voting_stack_worker.1.ijtteerugzkrzf99mjcpqnwqm
+2e5d745cc699 postgres:9.4 &quot;docker-entrypoint.s…&quot; About an hour ago Up About an hour 5432/tcp voting_stack_db.1.yhby06qsc53ryks4at9xkhzsu
+9cb6543aa5ae dockersamples/visualizer:stable &quot;npm start&quot; About an hour ago Up About an hour 8080/tcp voting_stack_visualizer.1.z7937i0rkwi81p35zsn67s6fo
+7a57ad0a16a1 dockersamples/examplevotingapp_result:before &quot;node server.js&quot; About an hour ago Up About an hour 80/tcp voting_stack_result.1.ibhhdgrgqjfmsi4fgk4d2tnpe
+4c729d9cf487 dockersamples/examplevotingapp_vote:before &quot;gunicorn app:app -b…&quot; About an hour ago Up About an hour 80/tcp voting_stack_vote.1.aabui7rdmc4viz9t76x6k93dn
+
+worker$ docker ps
+CONTAINER ID IMAGE COMMAND CREATED STATUS PORTS NAMES
+079a5a4506dd dockersamples/examplevotingapp_result:before &quot;node server.js&quot; 9 minutes ago Up 9 minutes 80/tcp voting_stack_result.3.ddozkt7a528ek69479jl5woud
+8f25b2d0512f dockersamples/examplevotingapp_result:before &quot;node server.js&quot; 9 minutes ago Up 9 minutes 80/tcp voting_stack_result.2.5tmjvecjtlx8pnzy52y98dxx5
+5811c9b7ac84 redis:alpine &quot;docker-entrypoint.s…&quot; About an hour ago Up About an hour 6379/tcp voting_stack_redis.1.s6ky4lq93m3moa2oc7i5m612a
+7aa7718315d9 dockersamples/examplevotingapp_vote:before &quot;gunicorn app:app -b…&quot; About an hour ago Up About an hour 80/tcp voting_stack_vote.2.jd1wzdyq3bw5x26aq3jqlrvrb
+</code></pre><h3 id=heading></h3><h3 id=drain-a-node-and-pull-it-out-of-service>Drain a node and pull it out of service:</h3><p>In the real world, we need to shutdown nodes for upgrade and periodic maintenance.  Docker allows users to pull out nodes from a swarm and shut the node down.  It involves two steps:  first, we need to move the services away from the node to other nodes in the swarm; second, we need to pull out the node from the swarm.</p><p>To drain the services out of a node execute the following command.</p><pre><code>manager$ docker node update --availability drain 2ojpw5poh6s33ep9e4o6q509v
+2ojpw5poh6s33ep9e4o6q509v
+</code></pre><p>check the worker node and see if the services have been drained out of it.</p><pre><code>worker$ docker ps
+CONTAINER ID IMAGE COMMAND CREATED STATUS PORTS NAMES
+</code></pre><p>Check the manager node to see if all the services from the worker node have been moved to it.</p><pre><code>manager$ docker ps
+CONTAINER ID IMAGE COMMAND CREATED STATUS PORTS NAMES
+1c8a7935a8dc dockersamples/examplevotingapp_worker:latest &quot;/bin/sh -c 'dotnet …&quot; 2 minutes ago Up 2 minutes voting_stack_worker.1.v2a312sb73eur5ncf5b4g6007
+3882b7a45c1c redis:alpine &quot;docker-entrypoint.s…&quot; 2 minutes ago Up 2 minutes 6379/tcp voting_stack_redis.1.gvys2udrcgcnm2eqfnbzj0jhg
+83f2126a17b6 dockersamples/examplevotingapp_vote:before &quot;gunicorn app:app -b…&quot; 2 minutes ago Up 2 minutes 80/tcp voting_stack_vote.2.qfwsop38s23iqfwiz762vbd91
+b17ba659bb3e dockersamples/examplevotingapp_result:before &quot;node server.js&quot; 2 minutes ago Up 2 minutes 80/tcp voting_stack_result.3.ot6qinxotkwxt9522ywg7swds
+75d2c009233f dockersamples/examplevotingapp_result:before &quot;node server.js&quot; 2 minutes ago Up 2 minutes 80/tcp voting_stack_result.2.pnzjtjjcrjvuvad5dg4dsfdvf
+2e5d745cc699 postgres:9.4 &quot;docker-entrypoint.s…&quot; About an hour ago Up About an hour 5432/tcp voting_stack_db.1.yhby06qsc53ryks4at9xkhzsu
+9cb6543aa5ae dockersamples/visualizer:stable &quot;npm start&quot; About an hour ago Up About an hour 8080/tcp voting_stack_visualizer.1.z7937i0rkwi81p35zsn67s6fo
+7a57ad0a16a1 dockersamples/examplevotingapp_result:before &quot;node server.js&quot; About an hour ago Up About an hour 80/tcp voting_stack_result.1.ibhhdgrgqjfmsi4fgk4d2tnpe
+4c729d9cf487 dockersamples/examplevotingapp_vote:before &quot;gunicorn app:app -b…&quot; About an hour ago Up About an hour 80/tcp voting_stack_vote.1.aabui7rdmc4viz9t76x6k93dn
+</code></pre><p>Next we could pull out the worker node from the swarm.</p><pre><code>worker$ docker swarm leave
+Node left the swarm.
+</code></pre><p>We can shutdown the worker node now for maintenance.</p><p>That&rsquo;s all folks !  You have become a Docker pro.  Now you know how to create and manage Docker Swarm.  Congratulations !!</p></article><section class=post-nav><ul><li><a href=http://www.ethernetresearch.com/geekzone/docker-container-tutorial-installing-docker/><i class="fa fa-chevron-circle-left"></i>Docker Container Tutorial - Running A Simple Docker Container</a></li><li><a href=http://www.ethernetresearch.com/geekzone/docker-container-tutorial-creating-docker-container-images/>Docker Container Tutorial - Creating Docker Container Images <i class="fa fa-chevron-circle-right"></i></a></li></ul></section></main><footer><h6>Copyright © 2021 - Ethernet Research | All Rights Reserved.</h6></footer></div><script src=http://www.ethernetresearch.com/js/scripts.js></script></body></html>
