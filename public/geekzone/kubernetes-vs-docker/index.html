@@ -1,0 +1,265 @@
+<!doctype html>
+
+<html lang="en">
+
+<head>
+  <title>Kubernetes vs Docker Swarm - 5 Major Differences - Ethernet Research</title>
+  <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="description" content="Ethernet Research: Actionable information about cloud technologies at your fingertips " />
+<meta name="author" content="Ganesh Velrajan" /><meta property="og:title" content="Kubernetes vs Docker Swarm - 5 Major Differences" />
+<meta property="og:description" content="Here are the 6 differences between Docker Swarm and Kubernetes. But before that let&rsquo;s refresh some basics on Docker and Kubernetes. If you are in a haste, you can jump straight to Kubernetes vs Docker Swarm debate down below." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://www.ethernetresearch.com/geekzone/kubernetes-vs-docker/" />
+<meta property="og:image" content="http://www.ethernetresearch.com/images/kubernetes/kubernetes.jpg" />
+<meta property="article:published_time" content="2018-07-08T00:00:00+00:00" />
+<meta property="article:modified_time" content="2018-07-08T00:00:00+00:00" />
+
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:image" content="http://www.ethernetresearch.com/images/kubernetes/kubernetes.jpg"/>
+
+<meta name="twitter:title" content="Kubernetes vs Docker Swarm - 5 Major Differences"/>
+<meta name="twitter:description" content="Here are the 6 differences between Docker Swarm and Kubernetes. But before that let&rsquo;s refresh some basics on Docker and Kubernetes. If you are in a haste, you can jump straight to Kubernetes vs Docker Swarm debate down below."/>
+
+<meta name="generator" content="Hugo 0.72.0" />
+    
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css" integrity="sha256-l85OmPOjvil/SOvVt3HnSSjzF1TUMyT9eV0c2BzEGzU=" crossorigin="anonymous" />
+  <link rel="stylesheet" href="http://www.ethernetresearch.com/fontawesome/css/all.min.css" />
+  
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto+Slab|Ruda" />
+  
+  
+  <link rel="stylesheet" type="text/css" href="http://www.ethernetresearch.com/css/styles.css" /></head>
+
+<body>
+  <div id="container">
+    <header>
+      <h1>
+                <a href="http://www.ethernetresearch.com/">Ethernet Research</a>
+            </h1>
+
+      <ul id="social-media">
+             <li>
+               <a href="https://linkedin.com/in/username" title="LinkedIn">
+               <i class="fab fa-linkedin fa-lg"></i>
+               </a>
+             </li>
+             <li>
+               <a href="https://www.youtube.com/channel/UCnmHCstjZcevizOQ0qmANlw" title="Youtube">
+               <i class="fab fa-youtube fa-lg"></i>
+               </a>
+             </li>
+      </ul>
+      
+      <p><em>Actionable information about cloud technologies</em></p>
+      
+    </header>
+
+    
+<nav>
+    <ul>
+        
+        <li>
+            <a class="" href="http://www.ethernetresearch.com/geekzone/">
+                <i class="fa-li fa  fa-lg"></i><span>GeekZone</span>
+            </a>
+        </li>
+        
+        <li>
+            <a class="" href="http://www.ethernetresearch.com/articles/">
+                <i class="fa-li fa  fa-lg"></i><span>Articles</span>
+            </a>
+        </li>
+        
+        <li>
+            <a class="" href="http://www.ethernetresearch.com/about/">
+                <i class="fa-li fa  fa-lg"></i><span>About Us</span>
+            </a>
+        </li>
+        
+        <li>
+            <a class="" href="http://www.ethernetresearch.com/online-courses-training/">
+                <i class="fa-li fa  fa-lg"></i><span>Online Courses</span>
+            </a>
+        </li>
+        
+        <li>
+            <a class="" href="http://www.ethernetresearch.com/contact/">
+                <i class="fa-li fa  fa-lg"></i><span>Contact</span>
+            </a>
+        </li>
+        
+    </ul>
+</nav>
+
+
+    <main>
+
+
+
+
+<article>
+
+    <h1>Kubernetes vs Docker Swarm - 5 Major Differences</h1>
+
+    
+      <aside>
+    <ul>
+        <li>
+            <time class="post-date" datetime="2018-07-08T00:00:00Z">Jul 8, 2018</time>
+        </li>
+        
+        
+        <li>
+            Categories:
+            <em>
+                
+                    
+                    <a href="http://www.ethernetresearch.com/categories/geekzone">GeekZone</a>
+                
+                    , 
+                    <a href="http://www.ethernetresearch.com/categories/kubernetes">Kubernetes</a>
+                
+                    , 
+                    <a href="http://www.ethernetresearch.com/categories/docker">Docker</a>
+                
+            </em>
+        </li>
+        
+
+        
+        <li>
+            <em>
+                
+                    
+                    <a href="http://www.ethernetresearch.com/tags/container">#Container</a>
+                
+                    , 
+                    <a href="http://www.ethernetresearch.com/tags/docker">#Docker</a>
+                
+                    , 
+                    <a href="http://www.ethernetresearch.com/tags/docker-swarm">#Docker Swarm</a>
+                
+                    , 
+                    <a href="http://www.ethernetresearch.com/tags/kubernetes">#Kubernetes</a>
+                
+            </em>
+        </li>
+        
+
+        <li>3 minute read</li>
+    </ul>
+</aside>
+
+    
+
+    
+<div class="featured_image">
+    <a href="http://www.ethernetresearch.com/geekzone/kubernetes-vs-docker/" title="Kubernetes vs Docker Swarm - 5 Major Differences">
+        <img src="http://www.ethernetresearch.com/images/kubernetes/kubernetes.jpg">
+    </a>
+</div>
+
+
+
+    <p>Here are the 6 differences between Docker Swarm and Kubernetes.  But before that let&rsquo;s refresh some basics on Docker and Kubernetes.  If you are in a haste, you can jump straight to <strong>Kubernetes vs Docker Swarm</strong> debate down below.</p>
+<h2 id="what-is-docker">What is Docker?</h2>
+<p>Docker  is a containerization platform.  It helps create Docker images and Docker containers from an application binary and configuration files.</p>
+<p>Docker leverages the containerization primitives such as namespace, cgroups provided by the Linux Kernel to run docker containers.</p>
+<h2 id="what-is-docker-swarm">What is Docker Swarm</h2>
+<p>Docker Swarm is a proprietary management software from Docker to manage a swarm of containers running in a Docker cluster.</p>
+<p>Docker Swarm is used to create and manage the cluster nodes as well schedule container jobs to run in the cluster nodes.</p>
+<h2 id="what-is-kubernetes-or-k8s">What is Kubernetes or K8s?</h2>
+<p>Kubernetes (also known as K8s) is an open source &ldquo;orchestration&rdquo; or &ldquo;management&rdquo; platform for managing containers.</p>
+<blockquote>
+<p>Kubernetes is &ldquo;NOT&rdquo; a containerization platform that competes with Docker container engine(Docker CE/EE) .</p>
+</blockquote>
+<p>It actually leverages Docker to instantiate containers in a cluster.  For example, Kubernetes requires you to install Docker CE/EE to run and manage your applications that are packaged as Docker images.</p>
+<h3 id="what-kubernetes-does">What Kubernetes does?</h3>
+<p>Kubernetes creates and manages cluster nodes.  Kubernetes creates and manages pods containing containerised applications within those nodes in a cluster.</p>
+<blockquote>
+<p>In very simple terms, Kubernetes is more like OpenStack equivalent in the container space.</p>
+</blockquote>
+<p>Kubernetes competes with Docker Swarm and Apache Mesos in the container cluster orchestration market.</p>
+<h2 id="kubernetes-vs-docker-swarm---differences">Kubernetes vs Docker Swarm - Differences</h2>
+<p>Here are a few primary differences between Kubernetes and Docker Swarm:</p>
+<table>
+<thead>
+<tr>
+<th>Kubernetes</th>
+<th>Docker Swarm</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>It is a free open source technology, originally developed at Google</td>
+<td>It is a proprietary solution developed and sold by Docker Inc.</td>
+</tr>
+<tr>
+<td>It is a highly scalable platform. Kubernetes can manage upto 5000 nodes in a cluster and 150,000 pods within those cluster nodes.</td>
+<td>Docker Swarm is relatively less scalable. Docker Swarm can support only 1000 nodes in a cluster and 30,000 pods with those cluster nodes.</td>
+</tr>
+<tr>
+<td>Kubernetes cluster consists of Master nodes and Worker nodes</td>
+<td>Docker Swarm consists of Manager nodes and Worker nodes</td>
+</tr>
+<tr>
+<td>Supports High Availability(HA). Multiple Master nodes and Worker nodes can be configured.</td>
+<td>Supports High Availability(HA). Multiple Manager nodes and Worker nodes can be configured.</td>
+</tr>
+<tr>
+<td>Kubernetes terminologies: Pods, Deployments, Services</td>
+<td>Docker Swarm terminologies: Stack, Services, Tasks</td>
+</tr>
+<tr>
+<td>In Kubernetes terminologies, a deployment is a collection or multiple replicas of the same pod.</td>
+<td>In Docker Swarm terminologies, a Stack is a group of services that are usually deployed together, such as a frontend service and a backend service that together forms an application stack.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="which-one-is-popular-kubernetes-or-docker-swarm">Which one is popular Kubernetes or Docker Swarm?</h3>
+<p>Kubernetes is more powerful, robust and has wider industry adoption than Docker Swarm.  Moreover, it is a free open source software.</p>
+<p>Kubernetes is supported by all the three major cloud service provides - AWS, MS Azure and Google Cloud Platform.</p>
+<p>Kubernetes is providing a though competition to Docker.  The flurry of organizational changes happening within Docker company is due to these reasons.</p>
+<p> </p>
+
+
+</article>
+
+
+<section class="post-nav">
+    <ul>
+        
+        <li>
+            <a href="http://www.ethernetresearch.com/geekzone/linux-networking-commands-check-debug-ip-udp-tcp-packet-loss/"><i class="fa fa-chevron-circle-left"></i> Linux Networking Commands to Debug Troubleshoot IP / UDP / TCP Packet Loss</a>
+        </li>
+        
+        
+        <li>
+            <a href="http://www.ethernetresearch.com/geekzone/kubernetes-tutorial-how-to-install-kubernetes-on-ubuntu/">Kubernetes Tutorial - How to Install Kubernetes on Ubuntu Baremetal <i class="fa fa-chevron-circle-right"></i> </a>
+        </li>
+        
+    </ul>
+</section>
+  
+    
+    
+  
+
+
+
+
+
+</main>
+    <footer>
+        <h6>Copyright © 2021 - Ethernet Research | All Rights Reserved.</h6>
+    </footer>
+</div>
+<script src="http://www.ethernetresearch.com/js/scripts.js"></script>
+
+
+</body>
+
+</html>
+

@@ -1,0 +1,420 @@
+<!doctype html>
+
+<html lang="en">
+
+<head>
+  <title>Linux Container (LXC) Networking Fundamentals - Ethernet Research</title>
+  <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="description" content="Ethernet Research: Actionable information about cloud technologies at your fingertips " />
+<meta name="author" content="Ganesh Velrajan" /><meta property="og:title" content="Linux Container (LXC) Networking Fundamentals" />
+<meta property="og:description" content="We saw how to create an LXC container in the previous article. In this article we&rsquo;ll see how to set up a basic network for LXC and make it communicate to the outside world." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://www.ethernetresearch.com/geekzone/linux-container-lxc-networking-fundamentals/" />
+<meta property="og:image" content="http://www.ethernetresearch.com/images/linux/linux-container-lxc.jpeg" />
+<meta property="article:published_time" content="2016-11-18T00:00:00+00:00" />
+<meta property="article:modified_time" content="2016-11-18T00:00:00+00:00" />
+
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:image" content="http://www.ethernetresearch.com/images/linux/linux-container-lxc.jpeg"/>
+
+<meta name="twitter:title" content="Linux Container (LXC) Networking Fundamentals"/>
+<meta name="twitter:description" content="We saw how to create an LXC container in the previous article. In this article we&rsquo;ll see how to set up a basic network for LXC and make it communicate to the outside world."/>
+
+<meta name="generator" content="Hugo 0.72.0" />
+    
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css" integrity="sha256-l85OmPOjvil/SOvVt3HnSSjzF1TUMyT9eV0c2BzEGzU=" crossorigin="anonymous" />
+  <link rel="stylesheet" href="http://www.ethernetresearch.com/fontawesome/css/all.min.css" />
+  
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto+Slab|Ruda" />
+  
+  
+  <link rel="stylesheet" type="text/css" href="http://www.ethernetresearch.com/css/styles.css" /></head>
+
+<body>
+  <div id="container">
+    <header>
+      <h1>
+                <a href="http://www.ethernetresearch.com/">Ethernet Research</a>
+            </h1>
+
+      <ul id="social-media">
+             <li>
+               <a href="https://linkedin.com/in/username" title="LinkedIn">
+               <i class="fab fa-linkedin fa-lg"></i>
+               </a>
+             </li>
+             <li>
+               <a href="https://www.youtube.com/channel/UCnmHCstjZcevizOQ0qmANlw" title="Youtube">
+               <i class="fab fa-youtube fa-lg"></i>
+               </a>
+             </li>
+      </ul>
+      
+      <p><em>Actionable information about cloud technologies</em></p>
+      
+    </header>
+
+    
+<nav>
+    <ul>
+        
+        <li>
+            <a class="" href="http://www.ethernetresearch.com/geekzone/">
+                <i class="fa-li fa  fa-lg"></i><span>GeekZone</span>
+            </a>
+        </li>
+        
+        <li>
+            <a class="" href="http://www.ethernetresearch.com/articles/">
+                <i class="fa-li fa  fa-lg"></i><span>Articles</span>
+            </a>
+        </li>
+        
+        <li>
+            <a class="" href="http://www.ethernetresearch.com/about/">
+                <i class="fa-li fa  fa-lg"></i><span>About Us</span>
+            </a>
+        </li>
+        
+        <li>
+            <a class="" href="http://www.ethernetresearch.com/online-courses-training/">
+                <i class="fa-li fa  fa-lg"></i><span>Online Courses</span>
+            </a>
+        </li>
+        
+        <li>
+            <a class="" href="http://www.ethernetresearch.com/contact/">
+                <i class="fa-li fa  fa-lg"></i><span>Contact</span>
+            </a>
+        </li>
+        
+    </ul>
+</nav>
+
+
+    <main>
+
+
+
+
+<article>
+
+    <h1>Linux Container (LXC) Networking Fundamentals</h1>
+
+    
+      <aside>
+    <ul>
+        <li>
+            <time class="post-date" datetime="2016-11-18T00:00:00Z">Nov 18, 2016</time>
+        </li>
+        
+        
+        <li>
+            Categories:
+            <em>
+                
+                    
+                    <a href="http://www.ethernetresearch.com/categories/geekzone">GeekZone</a>
+                
+                    , 
+                    <a href="http://www.ethernetresearch.com/categories/linux-containers">Linux Containers</a>
+                
+                    , 
+                    <a href="http://www.ethernetresearch.com/categories/networking">Networking</a>
+                
+            </em>
+        </li>
+        
+
+        
+        <li>
+            <em>
+                
+                    
+                    <a href="http://www.ethernetresearch.com/tags/linux-containers">#Linux Containers</a>
+                
+                    , 
+                    <a href="http://www.ethernetresearch.com/tags/lxc">#LXC</a>
+                
+            </em>
+        </li>
+        
+
+        <li>7 minute read</li>
+    </ul>
+</aside>
+
+    
+
+    
+<div class="featured_image">
+    <a href="http://www.ethernetresearch.com/geekzone/linux-container-lxc-networking-fundamentals/" title="Linux Container (LXC) Networking Fundamentals">
+        <img src="http://www.ethernetresearch.com/images/linux/linux-container-lxc.jpeg">
+    </a>
+</div>
+
+
+
+    <p>We saw how to create an LXC container in the <a href="https://ganeshtechblog.wordpress.com/2016/11/05/beginners-guide-to-linux-containers-with-lxc/">previous article</a>.  In this article we&rsquo;ll see how to set up a basic network for LXC and make it communicate to the outside world.</p>
+<h2 id="lxcbasic-networking-setup">LXC Basic Networking Setup:</h2>
+<p>An LXC Container comes up with default networking interfaces - an ethernet interface(eth0)and a loopback interface(lo).  I logged into my &ldquo;<em>test-container&rdquo;</em> created in the <a href="https://ganeshtechblog.wordpress.com/2016/11/05/beginners-guide-to-linux-containers-with-lxc/">previous article </a>and listed the interface using the <em>ifconfig</em> command.</p>
+<pre><code>root@test-container:/# ifconfig
+eth0      Link encap:Ethernet  HWaddr 00:16:3e:b4:86:23  
+          inet addr:10.0.3.124  Bcast:10.0.3.255  Mask:255.255.255.0
+          inet6 addr: fe80::216:3eff:feb4:8623/64 Scope:Link
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:25 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:11 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000 
+          RX bytes:4801 (4.8 KB)  TX bytes:1382 (1.3 KB)
+
+lo        Link encap:Local Loopback  
+          inet addr:127.0.0.1  Mask:255.0.0.0
+          inet6 addr: ::1/128 Scope:Host
+          UP LOOPBACK RUNNING  MTU:65536  Metric:1
+          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:0 
+          RX bytes:0 (0.0 B)  TX bytes:0 (0.0 B)
+
+
+root@test-container:/#
+</code></pre>
+<p>The <em>eth0</em> interface has been assigned an private IP address of 10.0.3.124. This LXC subnet doesn&rsquo;t overlap with the host network subnet address. The <em>ifconfig</em> command executed on the host machine ( outside the container ) provides the following output.</p>
+<pre><code>$ ifconfig
+eth0      Link encap:Ethernet  HWaddr 00:0c:29:9c:80:88  
+          inet addr:192.168.85.132  Bcast:192.168.85.255  Mask:255.255.255.0
+          inet6 addr: fe80::20c:29ff:fe9c:8088/64 Scope:Link
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:252 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:298 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000 
+          RX bytes:67077 (67.0 KB)  TX bytes:31026 (31.0 KB)
+
+lo        Link encap:Local Loopback  
+          inet addr:127.0.0.1  Mask:255.0.0.0
+          inet6 addr: ::1/128 Scope:Host
+          UP LOOPBACK RUNNING  MTU:65536  Metric:1
+          RX packets:276 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:276 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:0 
+          RX bytes:39984 (39.9 KB)  TX bytes:39984 (39.9 KB)
+
+lxcbr0    Link encap:Ethernet  HWaddr fe:d9:bb:5b:a6:81  
+          inet addr:10.0.3.1  Bcast:10.0.3.255  Mask:255.255.255.0
+          inet6 addr: fe80::744d:3ff:fef2:5c6e/64 Scope:Link
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:147 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:183 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:0 
+          RX bytes:12744 (12.7 KB)  TX bytes:26509 (26.5 KB)
+
+veth3M3GH3 Link encap:Ethernet  HWaddr fe:d9:bb:5b:a6:81  
+          inet6 addr: fe80::fcd9:bbff:fe5b:a681/64 Scope:Link
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:48 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:71 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000 
+          RX bytes:4592 (4.5 KB)  TX bytes:10258 (10.2 KB)
+
+$ 
+</code></pre>
+<p>In the above output, we see <em>eth0</em> and <em>lo</em> as usual. However, the IP address configured on the physical ethernet interface <em>eth0</em> is 192.168.85.132.  Interestingly, the lxcbr0 has been assigned an IP address of 10.0.3.1 which falls in the same subnet range as the test-container&rsquo;s subnet 10.0.3.0/24.  I&rsquo;ll explain later in this article, why the bridge has been assigned with an IP address.</p>
+<p>Whenever LXC is created a default LXC bridge *lxcbr0 *is also created.  A Linux Bridge is a software equivalent of a physical switch used to interconnect physical host machines.  All containers spawned within a host would connect to this bridge by default.</p>
+<p>The <em>veth3M3GH3</em> interface is a veth  ( virtual ethernet) type interface that corresponds to the <em>eth0</em> interface we saw inside the test-container.  The <em>veth3M3GH3</em> is connected automatically to the *lxcbr0 *by default when the LXC is spawned.</p>
+<pre><code>$ brctl show
+bridge name bridge id       STP enabled interfaces
+lxcbr0      8000.fed9bb5ba681   no      veth3M3GH3
+$ 
+</code></pre>
+<h2 id="how-lxc-container-talks-to-the-outside-world-">How LXC container talks to the outside world ?</h2>
+<p>First let&rsquo;s check if the connectivity between the container and the host machine is in place.  Try pinging the host machine&rsquo;s <em>eth0</em> interface IP address from inside the test-container.</p>
+<pre><code>root@test-container:/# ping 192.168.85.132  -c 5
+PING 192.168.85.132 (192.168.85.132) 56(84) bytes of data.
+64 bytes from 192.168.85.132: icmp_seq=1 ttl=64 time=0.200 ms
+64 bytes from 192.168.85.132: icmp_seq=2 ttl=64 time=0.095 ms
+64 bytes from 192.168.85.132: icmp_seq=3 ttl=64 time=0.106 ms
+64 bytes from 192.168.85.132: icmp_seq=4 ttl=64 time=0.052 ms
+64 bytes from 192.168.85.132: icmp_seq=5 ttl=64 time=0.076 ms
+
+--- 192.168.85.132 ping statistics ---
+5 packets transmitted, 5 received, 0% packet loss, time 3999ms
+rtt min/avg/max/mdev = 0.052/0.105/0.200/0.052 ms
+root@test-container:/# 
+</code></pre>
+<p>Yey!! It works. But how does it work because these are two different subnets? Let&rsquo;s check the routing table of test-container.</p>
+<pre><code>root@test-container:/# ip route
+default via 10.0.3.1 dev eth0 
+10.0.3.0/24 dev eth0  proto kernel  scope link  src 10.0.3.124 
+root@test-container:/# 
+</code></pre>
+<p>So looks like the <em>lxbr0</em>&rsquo;s IP address(10.0.3.1) has been set as the default gateway to route any packet whose destination is other than 10.0.3.0/24 subnet.  As I described earlier, the <em>eth0</em> interface inside the container is the visible in the host network space as interface *veth3M3GH3.  *We know *veth3M3GH3 *is connected to <em>lxcbr0</em> by default.  This is how, the packets sent via the <em>eth0</em> interface in the container reaches the <em>lxcbr0</em> present outside the container in the host network space.</p>
+<p>On a side note, one additional information we could glean from this output is that, the Linux Bridge <em>lxbr0</em> has been configured to function as a gateway or router in-addition to its bridge functionality.</p>
+<p>Similarly, I was able to ping the container&rsquo;s <em>eth0</em> IP address from the host network space.</p>
+<pre><code>$ ping 10.0.3.124 -c 5
+PING 10.0.3.124 (10.0.3.124) 56(84) bytes of data.
+64 bytes from 10.0.3.124: icmp_seq=1 ttl=64 time=0.208 ms
+64 bytes from 10.0.3.124: icmp_seq=2 ttl=64 time=0.068 ms
+64 bytes from 10.0.3.124: icmp_seq=3 ttl=64 time=0.062 ms
+64 bytes from 10.0.3.124: icmp_seq=4 ttl=64 time=0.095 ms
+64 bytes from 10.0.3.124: icmp_seq=5 ttl=64 time=0.076 ms
+
+--- 10.0.3.124 ping statistics ---
+5 packets transmitted, 5 received, 0% packet loss, time 3996ms
+rtt min/avg/max/mdev = 0.062/0.101/0.208/0.055 ms
+$
+</code></pre>
+<p>This is because, the host route table has been set up in such a way that any packet destined to 10.0.3.0/24 network is reachable via <em>lxcbr0</em>.</p>
+<pre><code>$ ip route
+default via 192.168.85.2 dev eth0  proto static 
+10.0.3.0/24 dev lxcbr0  proto kernel  scope link  src 10.0.3.1 
+192.168.85.0/24 dev eth0  proto kernel  scope link  src 192.168.85.132  metric 1 
+$
+</code></pre>
+<h2 id="inter-networkingtwo-lxc-containers">Inter-Networking Two LXC Containers:</h2>
+<p>I spawned another container named &ldquo;<em>my-container</em>&rdquo;. It comes up with an IP of 10.0.3.8 on <em>eth0</em> interface.</p>
+<pre><code>root@my-container:/# ifconfig
+eth0      Link encap:Ethernet  HWaddr 00:16:3e:22:5e:63  
+          inet addr:10.0.3.8  Bcast:10.0.3.255  Mask:255.255.255.0
+          inet6 addr: fe80::216:3eff:fe22:5e63/64 Scope:Link
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:47 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:32 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000 
+          RX bytes:8155 (8.1 KB)  TX bytes:3152 (3.1 KB)
+
+lo        Link encap:Local Loopback  
+          inet addr:127.0.0.1  Mask:255.0.0.0
+          inet6 addr: ::1/128 Scope:Host
+          UP LOOPBACK RUNNING  MTU:65536  Metric:1
+          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:0 
+          RX bytes:0 (0.0 B)  TX bytes:0 (0.0 B)
+</code></pre>
+<p>Now check the routing table in <em>my-container</em>.</p>
+<pre><code>root@my-container:/# ip route
+default via 10.0.3.1 dev eth0 
+10.0.3.0/24 dev eth0  proto kernel  scope link  src 10.0.3.8 
+root@my-container:/# 
+</code></pre>
+<p>On the host network space check if the equivalent virtual ethernet interface has been created.</p>
+<pre><code>$ ifconfig
+eth0      Link encap:Ethernet  HWaddr 00:0c:29:9c:80:88  
+          inet addr:192.168.85.132  Bcast:192.168.85.255  Mask:255.255.255.0
+          inet6 addr: fe80::20c:29ff:fe9c:8088/64 Scope:Link
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:353 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:798 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000 
+          RX bytes:81156 (81.1 KB)  TX bytes:79957 (79.9 KB)
+
+lo        Link encap:Local Loopback  
+          inet addr:127.0.0.1  Mask:255.0.0.0
+          inet6 addr: ::1/128 Scope:Host
+          UP LOOPBACK RUNNING  MTU:65536  Metric:1
+          RX packets:301 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:301 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:0 
+          RX bytes:45156 (45.1 KB)  TX bytes:45156 (45.1 KB)
+
+lxcbr0    Link encap:Ethernet  HWaddr fe:a9:0d:a9:aa:4d  
+          inet addr:10.0.3.1  Bcast:10.0.3.255  Mask:255.255.255.0
+          inet6 addr: fe80::744d:3ff:fef2:5c6e/64 Scope:Link
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:233 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:266 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:0 
+          RX bytes:19951 (19.9 KB)  TX bytes:36711 (36.7 KB)
+
+veth1TV1KE Link encap:Ethernet  HWaddr fe:a9:0d:a9:aa:4d  
+          inet6 addr: fe80::fca9:dff:fea9:aa4d/64 Scope:Link
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:48 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:67 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000 
+          RX bytes:4592 (4.5 KB)  TX bytes:10023 (10.0 KB)
+
+veth3M3GH3 Link encap:Ethernet  HWaddr fe:d9:bb:5b:a6:81  
+          inet6 addr: fe80::fcd9:bbff:fe5b:a681/64 Scope:Link
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:91 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:129 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000 
+          RX bytes:9221 (9.2 KB)  TX bytes:16408 (16.4 KB)
+
+$ 
+</code></pre>
+<p>So eth0 interface inside my-container is seen in the host network space as <em>veth1TV1KE</em> interface. Check if <em>veth1TV1KE</em> is connected to the Linux Bridge lxcbr0 by default.</p>
+<pre><code>$ brctl show
+bridge name bridge id       STP enabled interfaces
+lxcbr0      8000.fea90da9aa4d   no      veth1TV1KE
+                            veth3M3GH3
+$
+</code></pre>
+<p>Kewl! It is indeed connected to <em>lxcbr0</em>. Let&rsquo;s see if we could ping between the two containers.</p>
+<pre><code>root@my-container:/# ping 10.0.3.124 -c 5
+PING 10.0.3.124 (10.0.3.124) 56(84) bytes of data.
+64 bytes from 10.0.3.124: icmp_seq=1 ttl=64 time=0.088 ms
+64 bytes from 10.0.3.124: icmp_seq=2 ttl=64 time=0.046 ms
+64 bytes from 10.0.3.124: icmp_seq=3 ttl=64 time=0.063 ms
+64 bytes from 10.0.3.124: icmp_seq=4 ttl=64 time=0.075 ms
+64 bytes from 10.0.3.124: icmp_seq=5 ttl=64 time=0.092 ms
+
+--- 10.0.3.124 ping statistics ---
+5 packets transmitted, 5 received, 0% packet loss, time 3997ms
+rtt min/avg/max/mdev = 0.046/0.072/0.092/0.020 ms
+root@my-container:/# 
+</code></pre>
+<p>Check the ping in the reverse direction.</p>
+<pre><code>root@test-container:/# ping 10.0.3.8 -c 5
+PING 10.0.3.8 (10.0.3.8) 56(84) bytes of data.
+64 bytes from 10.0.3.8: icmp_seq=1 ttl=64 time=0.265 ms
+64 bytes from 10.0.3.8: icmp_seq=2 ttl=64 time=0.076 ms
+64 bytes from 10.0.3.8: icmp_seq=3 ttl=64 time=0.112 ms
+64 bytes from 10.0.3.8: icmp_seq=4 ttl=64 time=0.086 ms
+64 bytes from 10.0.3.8: icmp_seq=5 ttl=64 time=0.107 ms
+
+--- 10.0.3.8 ping statistics ---
+5 packets transmitted, 5 received, 0% packet loss, time 3999ms
+rtt min/avg/max/mdev = 0.076/0.129/0.265/0.069 ms
+</code></pre>
+<p>That&rsquo;s all folks !</p>
+
+
+</article>
+
+
+<section class="post-nav">
+    <ul>
+        
+        
+        <li>
+            <a href="http://www.ethernetresearch.com/geekzone/advanced-lxc-networking-part-01/">Linux Containers - Advanced LXC Networking - Part 01 <i class="fa fa-chevron-circle-right"></i> </a>
+        </li>
+        
+    </ul>
+</section>
+  
+    
+    
+  
+
+
+
+
+
+</main>
+    <footer>
+        <h6>Copyright © 2021 - Ethernet Research | All Rights Reserved.</h6>
+    </footer>
+</div>
+<script src="http://www.ethernetresearch.com/js/scripts.js"></script>
+
+
+</body>
+
+</html>
+

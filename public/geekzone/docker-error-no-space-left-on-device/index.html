@@ -1,0 +1,314 @@
+<!doctype html>
+
+<html lang="en">
+
+<head>
+  <title>Docker Error No Space Left on Device - Ethernet Research</title>
+  <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="description" content="Ethernet Research: Actionable information about cloud technologies at your fingertips " />
+<meta name="author" content="Ganesh Velrajan" /><meta property="og:title" content="Docker Error No Space Left on Device" />
+<meta property="og:description" content="Recently, one of my cloud native application running as a Docker containers failed to function erratically all of a sudden. Eventually it turned out that the problem was due to lack of disk space." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://www.ethernetresearch.com/geekzone/docker-error-no-space-left-on-device/" />
+<meta property="og:image" content="http://www.ethernetresearch.com/images/docker/docker.png" />
+<meta property="article:published_time" content="2020-07-23T00:00:00+00:00" />
+<meta property="article:modified_time" content="2020-07-23T00:00:00+00:00" />
+
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:image" content="http://www.ethernetresearch.com/images/docker/docker.png"/>
+
+<meta name="twitter:title" content="Docker Error No Space Left on Device"/>
+<meta name="twitter:description" content="Recently, one of my cloud native application running as a Docker containers failed to function erratically all of a sudden. Eventually it turned out that the problem was due to lack of disk space."/>
+
+<meta name="generator" content="Hugo 0.72.0" />
+    
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css" integrity="sha256-l85OmPOjvil/SOvVt3HnSSjzF1TUMyT9eV0c2BzEGzU=" crossorigin="anonymous" />
+  <link rel="stylesheet" href="http://www.ethernetresearch.com/fontawesome/css/all.min.css" />
+  
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto+Slab|Ruda" />
+  
+  
+  <link rel="stylesheet" type="text/css" href="http://www.ethernetresearch.com/css/styles.css" /></head>
+
+<body>
+  <div id="container">
+    <header>
+      <h1>
+                <a href="http://www.ethernetresearch.com/">Ethernet Research</a>
+            </h1>
+
+      <ul id="social-media">
+             <li>
+               <a href="https://linkedin.com/in/username" title="LinkedIn">
+               <i class="fab fa-linkedin fa-lg"></i>
+               </a>
+             </li>
+             <li>
+               <a href="https://www.youtube.com/channel/UCnmHCstjZcevizOQ0qmANlw" title="Youtube">
+               <i class="fab fa-youtube fa-lg"></i>
+               </a>
+             </li>
+      </ul>
+      
+      <p><em>Actionable information about cloud technologies</em></p>
+      
+    </header>
+
+    
+<nav>
+    <ul>
+        
+        <li>
+            <a class="" href="http://www.ethernetresearch.com/geekzone/">
+                <i class="fa-li fa  fa-lg"></i><span>GeekZone</span>
+            </a>
+        </li>
+        
+        <li>
+            <a class="" href="http://www.ethernetresearch.com/articles/">
+                <i class="fa-li fa  fa-lg"></i><span>Articles</span>
+            </a>
+        </li>
+        
+        <li>
+            <a class="" href="http://www.ethernetresearch.com/about/">
+                <i class="fa-li fa  fa-lg"></i><span>About Us</span>
+            </a>
+        </li>
+        
+        <li>
+            <a class="" href="http://www.ethernetresearch.com/online-courses-training/">
+                <i class="fa-li fa  fa-lg"></i><span>Online Courses</span>
+            </a>
+        </li>
+        
+        <li>
+            <a class="" href="http://www.ethernetresearch.com/contact/">
+                <i class="fa-li fa  fa-lg"></i><span>Contact</span>
+            </a>
+        </li>
+        
+    </ul>
+</nav>
+
+
+    <main>
+
+
+
+
+<article>
+
+    <h1>Docker Error No Space Left on Device</h1>
+
+    
+      <aside>
+    <ul>
+        <li>
+            <time class="post-date" datetime="2020-07-23T00:00:00Z">Jul 23, 2020</time>
+        </li>
+        
+        
+        <li>
+            Categories:
+            <em>
+                
+                    
+                    <a href="http://www.ethernetresearch.com/categories/geekzone">GeekZone</a>
+                
+                    , 
+                    <a href="http://www.ethernetresearch.com/categories/docker">Docker</a>
+                
+            </em>
+        </li>
+        
+
+        
+        <li>
+            <em>
+                
+                    
+                    <a href="http://www.ethernetresearch.com/tags/geekzone">#GeekZone</a>
+                
+                    , 
+                    <a href="http://www.ethernetresearch.com/tags/docker">#Docker</a>
+                
+                    , 
+                    <a href="http://www.ethernetresearch.com/tags/docker-compose">#Docker Compose</a>
+                
+            </em>
+        </li>
+        
+
+        <li>7 minute read</li>
+    </ul>
+</aside>
+
+    
+
+    
+<div class="featured_image">
+    <a href="http://www.ethernetresearch.com/geekzone/docker-error-no-space-left-on-device/" title="Docker Error No Space Left on Device">
+        <img src="http://www.ethernetresearch.com/images/docker/docker.png">
+    </a>
+</div>
+
+
+
+    <p>Recently, one of my cloud native application running as a Docker containers failed to function erratically all of a sudden.  Eventually it turned out that the problem was due to lack of disk space.  Docket daemon is the one that complained about the lack of disk space in the host machine.  Here is the Docker error that complained about no space left on device:</p>
+<pre><code class="language-{.source-code}" data-lang="{.source-code}">docker: Error response from daemon: no space left on device.
+</code></pre><p>In this article I&rsquo;ll discuss how I peformed RCA (Root Cause Analysis) for this problem and what solutions I followed to completely address the issue once and for all.</p>
+<h2 id="problem-scenario-in-detail">Problem scenario in detail</h2>
+<p>My application has several microservices each running as a Docker container in a VM(Host).  The front end microservice is the one that failed to function correctly.  Upon investigation I found out that the API requests made by the front end microservice is responded by the backend&rsquo;s API gateway with empty responses.</p>
+<p>Upon further investigating the backend microservice, it appeared that all SQL queries to the postgres DB was failing.</p>
+<p>I tried restarting the postgres DB docker container but the problem still persisted with a new error.</p>
+<pre><code class="language-{.source-code}" data-lang="{.source-code}">docker: Error response from daemon: mkdir /var/lib/docker/overlay2/5051a8704320241cb6e3b92d5911b0769f2c93fbe02a99d33558c95861a64784-init: no space left on device.
+</code></pre><p>I tried the <code>docker system prune</code> command to delete any unwanted images, stale containers and stale networks that are currently not used in the production system. This will free up some disk space for the running docker containers to use.  But this solution solved my problem for a day or two and the problem re-appeared.</p>
+<p>In this article I&rsquo;ll discuss how I peformed RCA (Root Cause Analysis) for this problem and what solutions I followed to completely address the issue once and for all.</p>
+<h2 id="root-cause-analysis">Root Cause Analysis</h2>
+<p>I initially looked at the logs from each of the microservices chain to understand where the source of the problem.  In my case, the backend microservice failed to connect with the DB microservice to perform SQL queries.  It was evident from the backend microservice logs.</p>
+<p>Now I know that the docker daemon is complaining about creating a new file or write to an already existing file in its directory.  Usually docker filesystem is under /var/lib/docker in Linux.</p>
+<h3 id="check-where-the-varlibdocker-is-mounted">Check where the /var/lib/docker is mounted</h3>
+<p>The disk free (df) utility command comes in handy to find out the disk where the folder is mounted on; it tells which disk is full and by how much.</p>
+<pre><code class="language-{.source-code}" data-lang="{.source-code}">$ df -h /var/lib/docker
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/root        49G   42G  6.4G  87% /
+</code></pre><p>It says, <code>/var/lib/docker</code> is mounted on <code>/dev/root</code> filesystem.  Moreover, it also says that <code>/dev/root</code> filesystem is almost 87% full.  This is a clear indication that the <code>/dev/root</code> could have went out of space in the recent past and that could have prevented the docker daemon from writing any new data to a file on disk or create a new file in disk.</p>
+<h3 id="check-the-free-inodes-available">Check the free inodes available</h3>
+<p>Check if the docker error is occurring due to lack of inodes availability.</p>
+<pre><code class="language-{.source-code}" data-lang="{.source-code}">$ df -hi /var/lib/docker
+Filesystem     Inodes IUsed IFree IUse% Mounted on
+/dev/root        6.2M  226K  6.0M    4% /
+</code></pre><p>It says, <code>/dev/root</code> filesystem uses only 4% or 226K inodes of the available inodes 100% (6.2M inodes).  So clearly, free inodes are available in plenty for the docker daemon to create any new file.</p>
+<h3 id="check-the-disk-usage-of-the-docker-directory">Check the disk usage of the docker directory</h3>
+<p>The <code>df</code> (disk free) command tells us about the disk free and disk usage information at the file system level only.  It doesn&rsquo;t tell which directory (or application) under the <code>/</code> directory is consuming the most data on the disk.  For that we need to use the <code>du</code> (disk usage) command.</p>
+<p>In most cases, the application complaining the error [&ldquo;Error: no space left on device&rdquo;], is the one that consumes a lot of space on disk.  So first let&rsquo;s check the disk usage of <code>/var/lib/docker</code> directory in the <code>/dev/root</code> filesystem.</p>
+<pre><code class="language-{.source-code}" data-lang="{.source-code}">$ sudo du -h /var/lib/docker
+4.0K	/var/lib/docker/tmp
+4.0K	/var/lib/docker/overlay2/472e0a836ebf11b07eb16761815326dff8861abfaf3d99de31c1efe2c7414bf3/work
+4.0K	/var/lib/docker/overlay2/472e0a836ebf11b07eb16761815326dff8861abfaf3d99de31c1efe2c7414bf3/diff/var/local/webserver
+8.0K	/var/lib/docker/overlay2/472e0a836ebf11b07eb16761815326dff8861abfaf3d99de31c1efe2c7414bf3/diff/var/local
+12K	/var/lib/docker/overlay2/472e0a836ebf11b07eb16761815326dff8861abfaf3d99de31c1efe2c7414bf3/diff/var
+16K	/var/lib/docker/overlay2/472e0a836ebf11b07eb16761815326dff8861abfaf3d99de31c1efe2c7414bf3/diff
+32K	/var/lib/docker/overlay2/472e0a836ebf11b07eb16761815326dff8861abfaf3d99de31c1efe2c7414bf3
+4.0K	/var/lib/docker/overlay2/f0475e9472279658f679d8980b1776f2c00aedc6ccfd6e31a02dcbebe3d3a2df/work
+12K	/var/lib/docker/overlay2/f0475e9472279658f679d8980b1776f2c00aedc6ccfd6e31a02dcbebe3d3a2df/diff/var/lib/dpkg
+16K	/var/lib/docker/overlay2/f0475e9472279658f679d8980b1776f2c00aedc6ccfd6e31a02dcbebe3d3a2df/diff/var/lib
+20K	/var/lib/docker/overlay2/f0475e9472279658f679d8980b1776f2c00aedc6ccfd6e31a02dcbebe3d3a2df/diff/var
+4.0K	/var/lib/docker/overlay2/f0475e9472279658f679d8980b1776f2c00aedc6ccfd6e31a02dcbebe3d3a2df/diff/usr/share/postgresql/12
+64K	/var/lib/docker/overlay2/f0475e9472279658f679d8980b1776f2c00aedc6ccfd6e31a02dcbebe3d3a2df/diff/usr/share/postgresql
+68K	/var/lib/docker/overlay2/f0475e9472279658f679d8980b1776f2c00aedc6ccfd6e31a02dcbebe3d3a2df/diff/usr/share
+72K	/var/lib/docker/overlay2/f0475e9472279658f679d8980b1776f2c00aedc6ccfd6e31a02dcbebe3d3a2df/diff/usr
+...
+...
+...
+4.0K	/var/lib/docker/containers/63955d57625448a53e4a391dcf6f97952e30f44a13ee65ac24d90e747a1ffca1/checkpoints
+4.0K	/var/lib/docker/containers/63955d57625448a53e4a391dcf6f97952e30f44a13ee65ac24d90e747a1ffca1/mounts
+36K	/var/lib/docker/containers/63955d57625448a53e4a391dcf6f97952e30f44a13ee65ac24d90e747a1ffca1
+4.0K	/var/lib/docker/containers/23a77fd2325f88deec8cb45480326a1044e914b08b85553ae9d0d29b19e81698/checkpoints
+4.0K	/var/lib/docker/containers/23a77fd2325f88deec8cb45480326a1044e914b08b85553ae9d0d29b19e81698/mounts
+7.0M	/var/lib/docker/containers/23a77fd2325f88deec8cb45480326a1044e914b08b85553ae9d0d29b19e81698
+4.0K	/var/lib/docker/containers/14f5a4c98e5653a15e334880b9a58504adda416b06f359655bf251073b160ab1/checkpoints
+4.0K	/var/lib/docker/containers/14f5a4c98e5653a15e334880b9a58504adda416b06f359655bf251073b160ab1/mounts
+35G	/var/lib/docker/containers/14f5a4c98e5653a15e334880b9a58504adda416b06f359655bf251073b160ab1
+4.0K	/var/lib/docker/containers/3d03387e4de11ca77ce0dc4399f8bb58f62cd70faabbe36b7230355dcbc6b39b/checkpoints
+4.0K	/var/lib/docker/containers/3d03387e4de11ca77ce0dc4399f8bb58f62cd70faabbe36b7230355dcbc6b39b/mounts
+42M	/var/lib/docker/containers/3d03387e4de11ca77ce0dc4399f8bb58f62cd70faabbe36b7230355dcbc6b39b
+35G	/var/lib/docker/containers
+4.0K	/var/lib/docker/swarm
+4.0K	/var/lib/docker/buildkit/executor
+4.0K	/var/lib/docker/buildkit/content/ingest
+8.0K	/var/lib/docker/buildkit/content
+92K	/var/lib/docker/buildkit
+16K	/var/lib/docker/plugins
+56K	/var/lib/docker/network/files
+60K	/var/lib/docker/network
+38G	/var/lib/docker
+</code></pre><p>If you look at the output above, it clearly shows that <code>/var/lib/docker</code> directory alone consumes 38G out of the available 50GB on the <code>/dev/root</code> file system.  Also it specifically says that docker container ID <code>14f5a4c98e5653a15e334880b9a58504adda416b06f359655bf251073b160ab1</code> consumes 35G of disk space.</p>
+<pre><code class="language-{.source-code}" data-lang="{.source-code}">35G	/var/lib/docker/containers/14f5a4c98e5653a15e334880b9a58504adda416b06f359655bf251073b160ab1
+</code></pre><p>I checked if my application container writes anything to a docker volume which is usually mounted under <code>/var/lib/docker/volumes/</code>.  It appeared that my application wrote only less than 1MB of data to disk.  Also it wrote only to the docker volume and not to the container file system.  So it doesn&rsquo;t explain why the container file system is so bulky (35GB).</p>
+<p>I checked the log file where the container logs are stored.</p>
+<pre><code class="language-{.source-code}" data-lang="{.source-code}">$ sudo sh -c &quot;du -ch /var/lib/docker/containers/*/*-json.log&quot;
+35G	/var/lib/docker/containers/14f5a4c98e5653a15e334880b9a58504adda416b06f359655bf251073b160ab1/14f5a4c98e5653a15e334880b9a58504adda416b06f359655bf251073b160ab1-json.log
+7.0M	/var/lib/docker/containers/23a77fd2325f88deec8cb45480326a1044e914b08b85553ae9d0d29b19e81698/23a77fd2325f88deec8cb45480326a1044e914b08b85553ae9d0d29b19e81698-json.log
+42M	/var/lib/docker/containers/3d03387e4de11ca77ce0dc4399f8bb58f62cd70faabbe36b7230355dcbc6b39b/3d03387e4de11ca77ce0dc4399f8bb58f62cd70faabbe36b7230355dcbc6b39b-json.log
+4.0K	/var/lib/docker/containers/63955d57625448a53e4a391dcf6f97952e30f44a13ee65ac24d90e747a1ffca1/63955d57625448a53e4a391dcf6f97952e30f44a13ee65ac24d90e747a1ffca1-json.log
+35G	total
+</code></pre><h2 id="root-cause-of-the-problem">Root Cause of the Problem</h2>
+<p>The above output shows that the JSON log file of container <code>14f5a4c98e5653a15e334880b9a58504adda416b06f359655bf251073b160ab1</code> is 35GB in size.</p>
+<p>This is the root cause of the problem.  The container or the application is generating too many logs or the docker container has been running for several months without being restarted or respawned.</p>
+<p>In my case, both were the problems.  My container has been running for more than 2 months undisturbed and also it was logging all the Postgresql DB events to stdout.  Also I didn&rsquo;t explicitly configure the docker daemon to rotate the log file when it reaches a specific size, say 200MB or 1GB on disk.</p>
+<h2 id="how-to-resolve-the-issue">How to resolve the issue</h2>
+<p>There is a temporary solution and a permanent solution to this problem.</p>
+<h3 id="temporary-solution">Temporary Solution</h3>
+<p>The temporary solution is to free up the disk space to prevent the application from misbehaving or crashing in a production system.</p>
+<p>You could use either one of the command below to truncate the log file.  You need to be a sudo user to write to the log file.  I highly recommend using the truncate command and it worked well for me.</p>
+<pre><code class="language-{.source-code}" data-lang="{.source-code}">echo &quot;&quot; &gt; $(docker inspect --format='{{.LogPath}}' &lt;container_name_or_id&gt;)
+</code></pre><pre><code class="language-{.source-code}" data-lang="{.source-code}">truncate -s 0 $(docker inspect --format='{{.LogPath}}' &lt;container_name_or_id&gt;)
+</code></pre><p><strong>Note:</strong>  Do this at your own risk, as you are trying to compete with the docker daemon to write into a file that has been opened by docker daemon.</p>
+<p>Make sure that <code>docker logs &lt;container-id&gt;</code> shows the new logs after truncating the log file.  If there was any mess up, you&rsquo;ll get an error like the one shown below:</p>
+<pre><code class="language-{.source-code}" data-lang="{.source-code}">error from daemon in stream: Error grabbing logs: invalid character '\x00' looking for beginning of value
+</code></pre><p>This error means you have messed up the json contents of the JSON log file.  It will do no harm to the functionality of running container but just that you&rsquo;ll no longer be able to see meaning logs from the <code>docker logs</code> command output.</p>
+<p>But, when you remove and recreate the container to implement the permanent solution explained in the next section (during a scheduled maintenance window of your production system), this problem would go away.</p>
+<h3 id="permanent-solution">Permanent Solution</h3>
+<p>The permanent solution is to configure docker daemon or the docker container to use only the maximum specified size for the log file.  When the max file size is reached, the docker daemon should rotate the logs and start logging from the beginning of the file.  This way the log file doesn&rsquo;t grow in size automatically.</p>
+<p>Also, I had to disable logging in my GORM postgres DB driver to prevent unnecessary logging for each SQL query in a production build.</p>
+<p>Follow the instructions in the docker documentation page on <a href="https://docs.docker.com/config/containers/logging/json-file/">JSON File logging driver</a> for setting up the max log file size and to turn on the automatic log rotation feature.</p>
+<p>Basically, you need to create a daemon.json file under /etc/docker directory with the following content.</p>
+<pre><code class="language-{.source-code}" data-lang="{.source-code}">{
+  &quot;log-driver&quot;: &quot;json-file&quot;,
+  &quot;log-opts&quot;: {
+    &quot;max-size&quot;: &quot;10m&quot;,
+    &quot;max-file&quot;: &quot;3&quot; 
+  }
+}
+</code></pre><p>It basically limits the JSON log file size to 10MB maximum and thereafter the file will be rotated automatically and logged from the beggining of the file.</p>
+<p>Also, the daemon could create maximum 3 such log files only.  The default value for this field is 1.</p>
+<p><strong>Note:</strong> You need to restart the docker daemon to make this configuration to take effect.  Also all the containers running in the host need to be restarted.</p>
+<p>Alternatively, you could just configure a container to limit the log file size and enable automatic log rotation using the following command:</p>
+<pre><code class="language-{.source-code}" data-lang="{.source-code}">$ docker run \
+      --log-driver json-file --log-opt max-size=10m \
+      --log-opt max-file=3 \
+      alpine echo hello world
+</code></pre>
+
+</article>
+
+
+<section class="post-nav">
+    <ul>
+        
+        <li>
+            <a href="http://www.ethernetresearch.com/geekzone/how-to-install-jenkins-on-ubuntu-16-04/"><i class="fa fa-chevron-circle-left"></i> How to install Jenkins on Ubuntu 20.04 LTS</a>
+        </li>
+        
+        
+        <li>
+            <a href="http://www.ethernetresearch.com/geekzone/docker-compose-auto-update-on-github-webhook/">Docker Compose Auto Update on GitHub Webhook <i class="fa fa-chevron-circle-right"></i> </a>
+        </li>
+        
+    </ul>
+</section>
+  
+    
+    
+  
+
+
+
+
+
+</main>
+    <footer>
+        <h6>Copyright © 2021 - Ethernet Research | All Rights Reserved.</h6>
+    </footer>
+</div>
+<script src="http://www.ethernetresearch.com/js/scripts.js"></script>
+
+
+</body>
+
+</html>
+

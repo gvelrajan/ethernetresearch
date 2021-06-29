@@ -1,0 +1,426 @@
+<!doctype html>
+
+<html lang="en">
+
+<head>
+  <title>How to Install SSL Certificate in WordPress VM - Ethernet Research</title>
+  <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="description" content="Ethernet Research: Actionable information about cloud technologies at your fingertips " />
+<meta name="author" content="Ganesh Velrajan" /><meta property="og:title" content="How to Install SSL Certificate in WordPress VM" />
+<meta property="og:description" content="In this article, we&rsquo;ll discuss how to install SSL Certificate in any Linux based VM, including the WordPress VM running in Google Cloud Platform(GCP)
+It doesn&rsquo;t matter whether the VM is running in GCP or in your local server or anywhere." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://www.ethernetresearch.com/geekzone/how-to-install-ssl-certificate-in-wordpress/" />
+<meta property="og:image" content="http://www.ethernetresearch.com/images/linux/programming.jpg" />
+<meta property="article:published_time" content="2018-07-19T00:00:00+00:00" />
+<meta property="article:modified_time" content="2018-07-19T00:00:00+00:00" />
+
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:image" content="http://www.ethernetresearch.com/images/linux/programming.jpg"/>
+
+<meta name="twitter:title" content="How to Install SSL Certificate in WordPress VM"/>
+<meta name="twitter:description" content="In this article, we&rsquo;ll discuss how to install SSL Certificate in any Linux based VM, including the WordPress VM running in Google Cloud Platform(GCP)
+It doesn&rsquo;t matter whether the VM is running in GCP or in your local server or anywhere."/>
+
+<meta name="generator" content="Hugo 0.72.0" />
+    
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css" integrity="sha256-l85OmPOjvil/SOvVt3HnSSjzF1TUMyT9eV0c2BzEGzU=" crossorigin="anonymous" />
+  <link rel="stylesheet" href="http://www.ethernetresearch.com/fontawesome/css/all.min.css" />
+  
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto+Slab|Ruda" />
+  
+  
+  <link rel="stylesheet" type="text/css" href="http://www.ethernetresearch.com/css/styles.css" /></head>
+
+<body>
+  <div id="container">
+    <header>
+      <h1>
+                <a href="http://www.ethernetresearch.com/">Ethernet Research</a>
+            </h1>
+
+      <ul id="social-media">
+             <li>
+               <a href="https://linkedin.com/in/username" title="LinkedIn">
+               <i class="fab fa-linkedin fa-lg"></i>
+               </a>
+             </li>
+             <li>
+               <a href="https://www.youtube.com/channel/UCnmHCstjZcevizOQ0qmANlw" title="Youtube">
+               <i class="fab fa-youtube fa-lg"></i>
+               </a>
+             </li>
+      </ul>
+      
+      <p><em>Actionable information about cloud technologies</em></p>
+      
+    </header>
+
+    
+<nav>
+    <ul>
+        
+        <li>
+            <a class="" href="http://www.ethernetresearch.com/geekzone/">
+                <i class="fa-li fa  fa-lg"></i><span>GeekZone</span>
+            </a>
+        </li>
+        
+        <li>
+            <a class="" href="http://www.ethernetresearch.com/articles/">
+                <i class="fa-li fa  fa-lg"></i><span>Articles</span>
+            </a>
+        </li>
+        
+        <li>
+            <a class="" href="http://www.ethernetresearch.com/about/">
+                <i class="fa-li fa  fa-lg"></i><span>About Us</span>
+            </a>
+        </li>
+        
+        <li>
+            <a class="" href="http://www.ethernetresearch.com/online-courses-training/">
+                <i class="fa-li fa  fa-lg"></i><span>Online Courses</span>
+            </a>
+        </li>
+        
+        <li>
+            <a class="" href="http://www.ethernetresearch.com/contact/">
+                <i class="fa-li fa  fa-lg"></i><span>Contact</span>
+            </a>
+        </li>
+        
+    </ul>
+</nav>
+
+
+    <main>
+
+
+
+
+<article>
+
+    <h1>How to Install SSL Certificate in WordPress VM</h1>
+
+    
+      <aside>
+    <ul>
+        <li>
+            <time class="post-date" datetime="2018-07-19T00:00:00Z">Jul 19, 2018</time>
+        </li>
+        
+        
+        <li>
+            Categories:
+            <em>
+                
+                    
+                    <a href="http://www.ethernetresearch.com/categories/geekzone">GeekZone</a>
+                
+                    , 
+                    <a href="http://www.ethernetresearch.com/categories/linux-networking">Linux Networking</a>
+                
+            </em>
+        </li>
+        
+
+        
+        <li>
+            <em>
+                
+                    
+                    <a href="http://www.ethernetresearch.com/tags/linux-vm">#Linux VM</a>
+                
+                    , 
+                    <a href="http://www.ethernetresearch.com/tags/ssl-certificate">#SSL Certificate</a>
+                
+                    , 
+                    <a href="http://www.ethernetresearch.com/tags/wordpress">#Wordpress</a>
+                
+                    , 
+                    <a href="http://www.ethernetresearch.com/tags/cloud">#Cloud</a>
+                
+            </em>
+        </li>
+        
+
+        <li>5 minute read</li>
+    </ul>
+</aside>
+
+    
+
+    
+<div class="featured_image">
+    <a href="http://www.ethernetresearch.com/geekzone/how-to-install-ssl-certificate-in-wordpress/" title="How to Install SSL Certificate in WordPress VM">
+        <img src="http://www.ethernetresearch.com/images/linux/programming.jpg">
+    </a>
+</div>
+
+
+
+    <p>In this article, we&rsquo;ll discuss how to install SSL Certificate in any Linux based VM, including the WordPress VM running in Google Cloud Platform(GCP)</p>
+<p>It doesn&rsquo;t matter whether the VM is running in GCP or in your local server or anywhere.</p>
+<p>The procedure is the same.</p>
+<p><strong>Quick Trivia:</strong></p>
+<p>The WordPress VM available in GCP Click to Deploy has the following artefacts in them.</p>
+<pre><code>Debian 8
+
+Apache HTTP Server 2.4.10
+
+MySQL 5.5.58
+
+PHP 5.6.30
+</code></pre>
+<p>Anyway, that was just an FYI.  Let&rsquo;s move ahead with our demo.</p>
+<h2 id="installing-ssl-certificate-from-linux-bash-shell">Installing SSL Certificate from Linux Bash Shell</h2>
+<p>[ <strong>Note</strong>: You can skip steps #1 and #2 below for GCP WordPress VM because it already comes with Openssl and Apache2 installed in it. ]</p>
+<p>First install Open SSL package in your Linux machine</p>
+<h3 id="step-1">Step #1</h3>
+<pre><code>sudo apt-get update
+
+sudo apt-get upgrade openssl
+</code></pre>
+<p>Next Install Apache.  Apache by default will run the HTTP service.  We&rsquo;ll configure it to run the HTTPS service.</p>
+<h3 id="step-2">Step #2</h3>
+<pre><code>sudo apt-get install apache2
+</code></pre>
+<p>Enable the SSL module in Apache.</p>
+<pre><code>sudo a2enmod ssl
+</code></pre>
+<h3 id="step-3">Step #3</h3>
+<p>Apache server comes with a default template for enabling SSL. Let&rsquo;s leverage it.</p>
+<pre><code>sudo a2ensite default-ssl
+</code></pre>
+<p>The above command will create a &ldquo;default-ssl.conf&rdquo; in the /etc/apache2/sites-enabled/ folder.</p>
+<pre><code>$ ls
+
+default-ssl.conf  wordpress.conf
+</code></pre>
+<h3 id="step-4">Step #4</h3>
+<p>Reload the Apache server for these changes to take effect.</p>
+<pre><code>$ sudo service apache2 reload
+</code></pre>
+<p>Why do you want your website to be SSL Certified or https enabled?</p>
+<p>If your goal is to get &ldquo;https&rdquo; in your WordPress or any website so that it gives a good impression about your site to your users or for SEO reasons, then just stop buying SSL Certificates from those third-party private SSL Vendors who basically rob you of your money.  Instead get it for absolutely free, no obligation attached, using the below options.</p>
+<h3 id="step-5">Step #5</h3>
+<p>You Have Two Option:</p>
+<p>a) You can generate a self signed SSL Certificate in your machine locally</p>
+<p>b) Get a free SSL certificate from <a href="https://www.sslforfree.com/">https://www.sslforfree.com/</a>  which is a non-profit organization supporting this.  Follow the procedures in the website to get your SSL Certificate Files.</p>
+<p>The site will give you an option to download the files in a zipped format.  Unzip them and bring it to your Linux VM and place them under /etc/apache2/ssl/ folder.   You&rsquo;ll have to create the ssl folder under /etc/apache2 before you can copy the files to this location.</p>
+<p>After you copy the files.  Make the files not accessible by other users but only by the root. Use the following command.</p>
+<pre><code>$ chmod 600 /etc/apache2/ssh/*
+
+$ ls -l /etc/apache2/ssl
+
+total 12
+
+-rw------- 1 root root 1646 Jul 11 11:09 ca_bundle.crt
+
+-rw------- 1 root root 2174 Jul 11 11:09 certificate.crt
+
+-rw------- 1 root root 1703 Jul 11 11:09 private.key
+
+$
+</code></pre>
+<h3 id="step-6">Step #6</h3>
+<p>Now open the default-ssl.conf file that we generated earlier in step #3.</p>
+<pre><code>$ sudo vim /etc/apache2/sites-enabled/default-ssl.conf
+
+
+&lt;IfModule mod_ssl.c&gt;
+
+        &lt;VirtualHost _default_:443&gt;
+
+                ServerAdmin webmaster@localhost
+
+                DocumentRoot /var/www/html
+
+                # Available loglevels: trace8, ..., trace1, debug, info, notice, warn,
+
+                # error, crit, alert, emerg.
+
+                # It is also possible to configure the loglevel for particular
+
+                # modules, e.g.
+
+                #LogLevel info ssl:warn
+
+                ErrorLog ${APACHE_LOG_DIR}/error.log
+
+                CustomLog ${APACHE_LOG_DIR}/access.log combined
+
+                # For most configuration files from conf-available/, which are
+
+                # enabled or disabled at a global level, it is possible to
+
+                # include a line for only one particular virtual host. For example the
+
+                # following line enables the CGI configuration for this host only
+
+                # after it has been globally disabled with &quot;a2disconf&quot;.
+
+                #Include conf-available/serve-cgi-bin.conf
+
+                #   SSL Engine Switch:
+
+                #   Enable/Disable SSL for this virtual host.
+
+                SSLEngine on
+
+                #   A self-signed (snakeoil) certificate can be created by installing
+
+                #   the ssl-cert package. See
+
+                #   /usr/share/doc/apache2/README.Debian.gz for more info.
+
+                #   If both key and certificate are stored in the same file, only the
+
+                #   SSLCertificateFile directive is needed.
+
+                SSLCertificateFile /etc/apache2/ssl/certificate.crt
+
+                SSLCertificateKeyFile /etc/apache2/ssl/private.key
+
+...
+
+:wq
+
+$
+</code></pre>
+<p>Save the file and exit vim.</p>
+<h3 id="heading"></h3>
+<h3 id="step-7-optional">Step #7 (Optional)</h3>
+<p>If you want you can rename the default-ssl.conf file to wordpress-ssl.conf file.  Already the folder would have a wordpress.conf file for the non-secure &ldquo;http&rdquo; version of the Apache instance.  This is not a mandatory step, but optional.</p>
+<pre><code>$ sudo mv default-ssl.conf wordpress-ssl.conf
+
+$ ls /etc/apache2/sites-enabled
+
+wordpress.conf  wordpress-ssl.conf
+</code></pre>
+<h3 id="heading-1"></h3>
+<h3 id="step-8">Step #8</h3>
+<p>Restart Apache so that the changes made to the config file will take effect.</p>
+<pre><code>$ sudo service apache2 reload
+</code></pre>
+<p> </p>
+<h3 id="step-9">Step #9</h3>
+<p>Verify that the HTTPS service runs on port 443.</p>
+<pre><code>$ openssl s_client -connect 'your-VM-IP-Address-Here:443'
+</code></pre>
+<p>You&rsquo;ll see some output like this&hellip;</p>
+<pre><code>-----BEGIN CERTIFICATE-----
+
+...
+
+...
+
+...
+
+
+-----END CERTIFICATE-----
+
+...
+
+...
+
+---
+
+No client certificate CA names sent
+
+---
+
+SSL handshake has read 2257 bytes and written 415 bytes
+
+---
+
+...
+
+...
+
+
+---
+
+^c
+
+read:errno=0
+
+$
+</code></pre>
+<p>If you see the above output then your SSL Certificate is installed and Apache HTTPS service is working just fine.  You can press CTRL+C and exit.</p>
+<p>You can go to your web browser and make it point to the &ldquo;https://your-website-name-here&rdquo; and press enter.  It will show your website.  More importantly, it will show the lock symbol next the URL, meaning it is a secure connection.</p>
+<p>We are done with successful installation and configuration on the Apache server side is done.</p>
+<h2 id="changes-required-in-wordpress">Changes Required in WordPress:</h2>
+<p>Create a new or edit an already existing &ldquo;.htaccess&rdquo; file under /var/www/html/<br>
+This is the root folder of your website.</p>
+<p>Add the following content to the &ldquo;.htaccess&rdquo; file.</p>
+<h3 id="step-10">Step #10</h3>
+<p>You can do this by adding the following code in your .htaccess file:</p>
+<pre><code>&lt;IfModule mod_rewrite.c&gt;
+
+RewriteEngine On
+
+RewriteCond %{SERVER_PORT} 80
+
+RewriteRule ^(.*)$ https://www.yoursite.com/$1 [R,L]
+
+&lt;/IfModule&gt;
+</code></pre>
+<p>Replace &lsquo;<a href="http://www.yoursite.com">www.yoursite.com</a>&rsquo; in the above configuration file with your site URL.</p>
+<h3 id="step-11">Step #11</h3>
+<p>Also edit wp-config.php file in the same root directory of your website and add the following line as shown below.</p>
+<pre><code>define('WP_DEBUG', false);
+
+define('FORCE_SSL_ADMIN', true);
+
+/* That's all, stop editing! Happy blogging. */
+
+...
+</code></pre>
+<h3 id="step-12">Step #12</h3>
+<p>Finally, login to your WordPress admin console and go to the settings page.  Edit the URL of your website.  Change &ldquo;http&rdquo; to &ldquo;https&rdquo; as shown below.</p>
+<p>Now if you point any web-browser to the &ldquo;http&rdquo; version of your website, it will redirect automatically to the &ldquo;https&rdquo; version of your website.</p>
+<p>That&rsquo;s all folks !</p>
+
+
+</article>
+
+
+<section class="post-nav">
+    <ul>
+        
+        <li>
+            <a href="http://www.ethernetresearch.com/geekzone/kubernetes-tutorial-how-to-install-kubernetes-on-ubuntu/"><i class="fa fa-chevron-circle-left"></i> Kubernetes Tutorial - How to Install Kubernetes on Ubuntu Baremetal</a>
+        </li>
+        
+        
+        <li>
+            <a href="http://www.ethernetresearch.com/geekzone/docker-container-tutorial-installing-docker/">Docker Container Tutorial - Running A Simple Docker Container <i class="fa fa-chevron-circle-right"></i> </a>
+        </li>
+        
+    </ul>
+</section>
+  
+    
+    
+  
+
+
+
+
+
+</main>
+    <footer>
+        <h6>Copyright © 2021 - Ethernet Research | All Rights Reserved.</h6>
+    </footer>
+</div>
+<script src="http://www.ethernetresearch.com/js/scripts.js"></script>
+
+
+</body>
+
+</html>
+

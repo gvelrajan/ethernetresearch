@@ -1,0 +1,576 @@
+<!doctype html>
+
+<html lang="en">
+
+<head>
+  <title>Kubernetes Security - User Authentication and Authorization (RBAC) - Ethernet Research</title>
+  <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="description" content="Ethernet Research: Actionable information about cloud technologies at your fingertips " />
+<meta name="author" content="Ganesh Velrajan" /><meta property="og:title" content="Kubernetes Security - User Authentication and Authorization (RBAC)" />
+<meta property="og:description" content="In the article, we&rsquo;ll discuss how to create credentials and add a new user to the Kubernetes Cluster to perform various roles in the cluster.
+To add a new user, we as an Admin, should create and approve the SSL Private Keys and Certificate for the user using the Kubernetes Certificate Manager." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://www.ethernetresearch.com/geekzone/kubernetes-security-user-authentication-authorization-rbac/" />
+<meta property="og:image" content="http://www.ethernetresearch.com/images/kubernetes/kubernetes.jpg" />
+<meta property="article:published_time" content="2018-11-01T00:00:00+00:00" />
+<meta property="article:modified_time" content="2018-11-01T00:00:00+00:00" />
+
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:image" content="http://www.ethernetresearch.com/images/kubernetes/kubernetes.jpg"/>
+
+<meta name="twitter:title" content="Kubernetes Security - User Authentication and Authorization (RBAC)"/>
+<meta name="twitter:description" content="In the article, we&rsquo;ll discuss how to create credentials and add a new user to the Kubernetes Cluster to perform various roles in the cluster.
+To add a new user, we as an Admin, should create and approve the SSL Private Keys and Certificate for the user using the Kubernetes Certificate Manager."/>
+
+<meta name="generator" content="Hugo 0.72.0" />
+    
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css" integrity="sha256-l85OmPOjvil/SOvVt3HnSSjzF1TUMyT9eV0c2BzEGzU=" crossorigin="anonymous" />
+  <link rel="stylesheet" href="http://www.ethernetresearch.com/fontawesome/css/all.min.css" />
+  
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto+Slab|Ruda" />
+  
+  
+  <link rel="stylesheet" type="text/css" href="http://www.ethernetresearch.com/css/styles.css" /></head>
+
+<body>
+  <div id="container">
+    <header>
+      <h1>
+                <a href="http://www.ethernetresearch.com/">Ethernet Research</a>
+            </h1>
+
+      <ul id="social-media">
+             <li>
+               <a href="https://linkedin.com/in/username" title="LinkedIn">
+               <i class="fab fa-linkedin fa-lg"></i>
+               </a>
+             </li>
+             <li>
+               <a href="https://www.youtube.com/channel/UCnmHCstjZcevizOQ0qmANlw" title="Youtube">
+               <i class="fab fa-youtube fa-lg"></i>
+               </a>
+             </li>
+      </ul>
+      
+      <p><em>Actionable information about cloud technologies</em></p>
+      
+    </header>
+
+    
+<nav>
+    <ul>
+        
+        <li>
+            <a class="" href="http://www.ethernetresearch.com/geekzone/">
+                <i class="fa-li fa  fa-lg"></i><span>GeekZone</span>
+            </a>
+        </li>
+        
+        <li>
+            <a class="" href="http://www.ethernetresearch.com/articles/">
+                <i class="fa-li fa  fa-lg"></i><span>Articles</span>
+            </a>
+        </li>
+        
+        <li>
+            <a class="" href="http://www.ethernetresearch.com/about/">
+                <i class="fa-li fa  fa-lg"></i><span>About Us</span>
+            </a>
+        </li>
+        
+        <li>
+            <a class="" href="http://www.ethernetresearch.com/online-courses-training/">
+                <i class="fa-li fa  fa-lg"></i><span>Online Courses</span>
+            </a>
+        </li>
+        
+        <li>
+            <a class="" href="http://www.ethernetresearch.com/contact/">
+                <i class="fa-li fa  fa-lg"></i><span>Contact</span>
+            </a>
+        </li>
+        
+    </ul>
+</nav>
+
+
+    <main>
+
+
+
+
+<article>
+
+    <h1>Kubernetes Security - User Authentication and Authorization (RBAC)</h1>
+
+    
+      <aside>
+    <ul>
+        <li>
+            <time class="post-date" datetime="2018-11-01T00:00:00Z">Nov 1, 2018</time>
+        </li>
+        
+        
+        <li>
+            Categories:
+            <em>
+                
+                    
+                    <a href="http://www.ethernetresearch.com/categories/geekzone">GeekZone</a>
+                
+                    , 
+                    <a href="http://www.ethernetresearch.com/categories/kubernetes">Kubernetes</a>
+                
+            </em>
+        </li>
+        
+
+        
+        <li>
+            <em>
+                
+                    
+                    <a href="http://www.ethernetresearch.com/tags/container">#Container</a>
+                
+                    , 
+                    <a href="http://www.ethernetresearch.com/tags/docker">#Docker</a>
+                
+                    , 
+                    <a href="http://www.ethernetresearch.com/tags/kubernetes">#Kubernetes</a>
+                
+                    , 
+                    <a href="http://www.ethernetresearch.com/tags/security">#Security</a>
+                
+            </em>
+        </li>
+        
+
+        <li>8 minute read</li>
+    </ul>
+</aside>
+
+    
+
+    
+<div class="featured_image">
+    <a href="http://www.ethernetresearch.com/geekzone/kubernetes-security-user-authentication-authorization-rbac/" title="Kubernetes Security - User Authentication and Authorization (RBAC)">
+        <img src="http://www.ethernetresearch.com/images/kubernetes/kubernetes.jpg">
+    </a>
+</div>
+
+
+
+    <p>In the article, we&rsquo;ll discuss how to create credentials and add a new user to the Kubernetes Cluster to perform various roles in the cluster.</p>
+<p>To add a new user, we as an Admin, should create and approve the SSL Private Keys and Certificate for the user using the Kubernetes Certificate Manager.</p>
+<p>So, let&rsquo;s get started.</p>
+<h2 id="authentication">Authentication:</h2>
+<h3 id="create-private-key">Create Private Key</h3>
+<p>First, let&rsquo;s create a private key for the user, in a separate folder.</p>
+<pre><code>minikube:~$ mkdir credentials
+minikube:~$ cd credentials/
+
+minikube:~/credentials$ openssl genrsa -out ganesh.key 2048
+Generating RSA private key, 2048 bit long modulus
+...........................................................................
+................+++
+...........................................................................
+....+++
+e is 65537 (0x10001)
+minikube:~/credentials$
+</code></pre>
+<h3 id="create-certificate-signing-request">Create Certificate Signing Request</h3>
+<p>Next, let&rsquo;s create the Certificate Signing Request (CSR) for the private key we generated above.</p>
+<pre><code>minikube:~/credentials$ openssl req -new -key ganesh.key -out ganesh.csr -subj &quot;/CN=ganesh/O=EthernetResearch&quot;\n
+minikube:~/credentials$
+minikube:~/credentials$ ls 
+ganesh.csr ganesh.key
+minikube:~/credentials$
+</code></pre>
+<p>Now let&rsquo;s encode the CSR into a base64 format.</p>
+<pre><code>minikube:~/credentials$ cat ganesh.csr | base64
+LS0tLS1CRUdJTiBDRVJUSUZJQ0FURSBSRVFVRVNULS0tLS0KTUlJQ2REQ0NBVndDQVFBd0x6RVJNQThHQTFVRUF3d0laM1psYkhKaGFtRXhHakFZQmdOVkJBb01FVVYwYUdWeQpibVYwVW1WelpXRnlZMmh1TUlJQklqQU5CZ2txaGtpRzl3MEJBUUVGQUFPQ0FROEFNSUlCQ2dLQ0FRRUExNTNGClNzaWRCdzF5cUZhSGdWblJjdmJYNjhzZUNSYm9KbEVOY1BSUFkySEFwcVJJaWVUZW9ESGpPWktWOExsZkFoYlgKUTNVYXJCSUxVcHd2UkVwUy9iWnFJM0d6eGxHbnYzOE9iZGx0azRjYW8xK0xnTnEzaDZIWUlpUklwWllzUDVCYgoybFFyWDdsNkR4dktaOTdrdThtRUR1cmdUb3o4NzlZNll5ZVJobUlaOXdkK2RUSjMvZEo0VUl0RG44YWl3MUhuCm5SMXE4cDdYd205YjVEU1YxNnAzdENZTFF6YlpxUCt0UEd4N0VKU05hSTNZNkkzamhDcmYrYUtvZGJjU1dBR0YKTUJxVjJkajY4N2RxbU42WEdraTRCbCtZd2VaV3doTy9Gb2YxZTJuWlZVd0Q1aVRlRkFmK0h6WGJibFhpK0RCMwpMd2QyWm85QU1lblVQZTZHQ3dJREFRQUJvQUF3RFFZSktvWklodmNOQVFFTEJRQURnZ0VCQUY3VDBHNU5tVy9zCm5UTTVPWitmcC84K3BDb0xPblNqbHk3TC9XdVRwWjdNUi83MjRGZE1ObWtUUHZCc0ZqTHhEUGhMaXhpWk5LcEQKYVc3RGxNVWw1a1FydzlnOGdXTnd2S1BkMmV4OGpQb2ErZENpbngvejlBdGlHN244OFlveFd1MFJHS0lzWGh5cgpmYnVCdVdaejExTDBhRWl5YU41VXNrOWNZL21IYlN6dERlV01IZ3VUb1hSUFNiU0wxZFJTSThLSlZ4RWV6eWdZCmVKeHdYYnB6VEtteStDT0pHMmgycmszY0t4V1FiY0VESXgyem5zVStOK0lROWw3ZlZIR3R4V0dXVWpZQ0hSUkcKeG5hT1Q3Q3NHM3JEaWVRN1BBR3hoNFZTZ3JnMmlMQStIYklrbHJkdm1mVkNVdGFJa1NYYnpCZGZpYWFSWkJFagowRzRLaGp0bjQ4QT0KLS0tLS1FTkQgQ0VSVElGSUNBVEUgUkVRVUVTVC0tLS0tCg==
+</code></pre>
+<h3 id="submit-certificate-signing-request-to-k8s">Submit Certificate Signing Request to K8s</h3>
+<p>Let&rsquo;s use the base64 encoded CSR in our request to Kubernetes Certificate Manager.</p>
+<pre><code>minikube:~/credentials$ cat signing-request.yaml 
+apiVersion: certificates.k8s.io/v1beta1
+kind: CertificateSigningRequest
+metadata:
+  name: ganesh-csr
+spec:
+  groups:
+  - system:authenticated
+  request: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURSBSRVFVRVNULS0tLS0KTUlJQ2REQ0NBVndDQVFBd0x6RVJNQThHQTFVRUF3d0laM1psYkhKaGFtRXhHakFZQmdOVkJBb01FVVYwYUdWeQpibVYwVW1WelpXRnlZMmh1TUlJQklqQU5CZ2txaGtpRzl3MEJBUUVGQUFPQ0FROEFNSUlCQ2dLQ0FRRUExNTNGClNzaWRCdzF5cUZhSGdWblJjdmJYNjhzZUNSYm9KbEVOY1BSUFkySEFwcVJJaWVUZW9ESGpPWktWOExsZkFoYlgKUTNVYXJCSUxVcHd2UkVwUy9iWnFJM0d6eGxHbnYzOE9iZGx0azRjYW8xK0xnTnEzaDZIWUlpUklwWllzUDVCYgoybFFyWDdsNkR4dktaOTdrdThtRUR1cmdUb3o4NzlZNll5ZVJobUlaOXdkK2RUSjMvZEo0VUl0RG44YWl3MUhuCm5SMXE4cDdYd205YjVEU1YxNnAzdENZTFF6YlpxUCt0UEd4N0VKU05hSTNZNkkzamhDcmYrYUtvZGJjU1dBR0YKTUJxVjJkajY4N2RxbU42WEdraTRCbCtZd2VaV3doTy9Gb2YxZTJuWlZVd0Q1aVRlRkFmK0h6WGJibFhpK0RCMwpMd2QyWm85QU1lblVQZTZHQ3dJREFRQUJvQUF3RFFZSktvWklodmNOQVFFTEJRQURnZ0VCQUY3VDBHNU5tVy9zCm5UTTVPWitmcC84K3BDb0xPblNqbHk3TC9XdVRwWjdNUi83MjRGZE1ObWtUUHZCc0ZqTHhEUGhMaXhpWk5LcEQKYVc3RGxNVWw1a1FydzlnOGdXTnd2S1BkMmV4OGpQb2ErZENpbngvejlBdGlHN244OFlveFd1MFJHS0lzWGh5cgpmYnVCdVdaejExTDBhRWl5YU41VXNrOWNZL21IYlN6dERlV01IZ3VUb1hSUFNiU0wxZFJTSThLSlZ4RWV6eWdZCmVKeHdYYnB6VEtteStDT0pHMmgycmszY0t4V1FiY0VESXgyem5zVStOK0lROWw3ZlZIR3R4V0dXVWpZQ0hSUkcKeG5hT1Q3Q3NHM3JEaWVRN1BBR3hoNFZTZ3JnMmlMQStIYklrbHJkdm1mVkNVdGFJa1NYYnpCZGZpYWFSWkJFagowRzRLaGp0bjQ4QT0KLS0tLS1FTkQgQ0VSVElGSUNBVEUgUkVRVUVTVC0tLS0tCg==
+
+  usages:
+  - digital signature
+  - key encipherment
+  - server auth
+</code></pre>
+<p>Next let&rsquo;s submit the request to Kubernetes Certificate Manager.</p>
+<pre><code>minikube:~/credentials$ kubectl create -f signing-request.yaml certificatesigningrequest.certificates.k8s.io/ganesh-csr created
+
+minikube:~/credentials$ kubectl get csr
+NAME AGE REQUESTOR CONDITION
+ganesh-csr 1m minikube-user Pending
+minikube:~/credentials$
+</code></pre>
+<h3 id="approve-the-certificate-as-k8s-admin">Approve the Certificate as K8s Admin</h3>
+<p>Next, as a Kubernetes Admin, let&rsquo;s approve the Certificate Signing Request.</p>
+<pre><code>minikube:~/credentials$ kubectl certificate approve ganesh-csr
+certificatesigningrequest.certificates.k8s.io/ganesh-csr approved
+minikube:~/credentials$
+
+minikube:~/credentials$ kubectl get csr
+NAME AGE REQUESTOR CONDITION
+ganesh-csr 6m minikube-user Approved,Issued
+minikube:~/credentials$
+</code></pre>
+<p>Now the user certificated has been successfully  approved, let&rsquo;s retrieve the signed Certificate and store it in a local file named &ldquo;ganesh.crt&rdquo;.</p>
+<pre><code>minikube:~/credentials$ kubectl get csr ganesh-csr -o jsonpath='{.status.certificate}' | base64 --decode &gt; ganesh.crt
+
+minikube:~/credentials$ ls
+ganesh.crt ganesh.csr ganesh.key signing-request.yaml
+
+minikube:~/credentials$ cat ganesh.crt 
+-----BEGIN CERTIFICATE-----
+MIIDJDCCAgygAwIBAgIUWea2B/T52AUW1yUpfqfDxFnM7FkwDQYJKoZIhvcNAQEL
+BQAwFTETMBEGA1UEAxMKbWluaWt1YmVDQTAeFw0xODExMDEwNjQ0MDBaFw0xOTEx
+MDEwNjQ0MDBaMC0xGjAYBgNVBAoTEUV0aGVybmV0UmVzZWFyY2huMQ8wDQYDVQQD
+EwZnYW5lc2gwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCoNnKewPY8
+ABlrPaJi2zQ43HgvgA5jZse2qAk4S2L4HfVGci/A8k+t62zhcQj9uMhwR5yhWX+8
+98nvyDumD8B6my0YIMcfslc4liGcZSlwBnrQDSvin5TtcsRJDXE4fLuOrbuAWpP5
+RXDFK+AVj2wAkmis4i8dMNL+X63B1Kng9Wfj/eboM6JSl4kLoTrCM6dtHlvwAxcc
+1u8N2ceYsVof4rmF7Tjzn4YjG1j6+ZKI5dgaxl2sIxtrtEOBO4oadnhTfdFDUkLn
+DSIb51ZyWnKPp3kfPTno00coXhhM6LFyiTMX0H3a/yH1oQVb/MZONbyo8R2JhUXB
+HhRuHeCvIlh/AgMBAAGjVDBSMA4GA1UdDwEB/wQEAwIFoDATBgNVHSUEDDAKBggr
+BgEFBQcDATAMBgNVHRMBAf8EAjAAMB0GA1UdDgQWBBQe/8B6PROMLku2VdNFVvLe
+QT2PXTANBgkqhkiG9w0BAQsFAAOCAQEAYzjYxH05MlEfC8Oue7szI4pzL/iGRQA+
+u9BYggbrY5STGHN64yB0sgkzD3d+nmKF1Vl/O4CKzxr1WgEl0ENxuj8ZdfTJy+7R
+MjJPvc77LSP4378Osw1Y38EEpmgm/g611XA8V5zbXMSJtb+N3aghgdDRmyQxC0WF
+2aW59MEE0mnd2/t95RxaJhxAV7i2NCz8XI9iW7GigMl6+PYWIl5+g8RBzUnhUMiF
+uU3vM9ELIbdPVtdz5UPSYQIZR/1o6coB8iDvGZbConJazn8E/4Surh7iKKtXvOGG
+STWLpS8Rh5XhIofkYS2XDTBvNCc+C8WrvPFalPKrrFI/Mux2SayY2Q==
+-----END CERTIFICATE-----
+</code></pre>
+<h3 id="create-new-user-in-k8s-using-the-credentials">Create New User in K8s Using the Credentials</h3>
+<p>Now, let&rsquo;s create the user &ldquo;ganesh&rdquo; in Kubernetes with the approved credentials we have just generated.</p>
+<pre><code>minikube:~/credentials$ kubectl config set-credentials ganesh --client-certificate=ganesh.crt --client-key=ganesh.key
+User &quot;ganesh&quot; set.
+
+minikube:~/credentials$ kubectl config view
+apiVersion: v1
+clusters:
+- cluster:
+    certificate-authority: /home/gannygans/.minikube/ca.crt
+    server: https://10.148.0.2:8443
+  name: minikube
+contexts:
+- context:
+    cluster: minikube
+    user: minikube
+  name: minikube
+current-context: minikube
+kind: Config
+preferences: {}
+users:
+- name: ganesh
+  user:
+    client-certificate: /home/gannygans/credentials/ganesh.crt
+    client-key: /home/gannygans/credentials/ganesh.key
+- name: minikube
+  user:
+    client-certificate: /home/gannygans/.minikube/client.crt
+    client-key: /home/gannygans/.minikube/client.key
+minikube:~/credentials$ 
+</code></pre>
+<h3 id="create-a-new-namespace-in-the-cluster">Create a New Namespace in the Cluster</h3>
+<p>Now, let&rsquo;s create a new namespace in the cluster and assign the user &ldquo;ganesh&rdquo; with access rights to that namespace.</p>
+<pre><code>minikube:~$ kubectl create namespace finance
+namespace/finance created
+minikube:~$ kubectl get namespace
+NAME STATUS AGE
+default Active 4h
+finance Active 6s
+kube-public Active 4h
+kube-system Active 4h
+minikube:~$
+</code></pre>
+<h3 id="create-new-context">Create New Context</h3>
+<p>Next, let&rsquo;s create a new context and associate the user with that context.</p>
+<p>Context is very useful if we have many Kubernetes clusters to manage and wanted to switch the context from one Kubernetes Cluster to another, so that you could execute commands related to that cluster.  Context makes the job of switching the connection very easy.</p>
+<p>Context is also very useful if you want to switch from one namespace in a cluster to another namespace in the same cluster or in a different cluster.</p>
+<pre><code>minikube:~/credentials$ kubectl config set-context finance-context --cluster=minikube --namespace=finance --user=ganesh
+Context &quot;finance-context&quot; created.
+
+minikube:~/credentials$ kubectl config view
+apiVersion: v1
+clusters:
+- cluster:
+certificate-authority: /home/gannygans/.minikube/ca.crt
+server: https://10.148.0.2:8443
+name: minikube
+contexts:
+- context:
+cluster: minikube
+namespace: finance
+user: ganesh
+name: finance-context
+- context:
+cluster: minikube
+user: minikube
+name: minikube
+current-context: minikube
+kind: Config
+preferences: {}
+users:
+- name: ganesh
+user:
+client-certificate: /home/gannygans/credentials/ganesh.crt
+client-key: /home/gannygans/credentials/ganesh.key
+- name: minikube
+user:
+client-certificate: /home/gannygans/.minikube/client.crt
+client-key: /home/gannygans/.minikube/client.key
+minikube:~/credentials$
+</code></pre>
+<h3 id="check-user-previleges">Check User Previleges:</h3>
+<p>Now, let&rsquo;s check the access previleges of the user &ldquo;ganesh&rdquo;  we have just created.</p>
+<pre><code>minikube:~$ kubectl auth can-i list pods --namespace finance
+yes
+minikube:~$ kubectl auth can-i list pods --namespace finance --as ganesh
+no
+</code></pre>
+<p>We see that as an admin we can access pods in &ldquo;finance&rdquo; namespace but not as user &ldquo;ganesh&rdquo;. Let&rsquo;s try accessing more resources in the &ldquo;finance&rdquo; namespace.</p>
+<p>Let&rsquo;s try to create a simple helloworld pod, as we did in the previous demos. Let&rsquo;s execute the below commands as an admin because the user &ldquo;ganesh&rdquo; doesn&rsquo;t have the access rights to create resources in the minikube cluster yet.</p>
+<pre><code>minikube-2:~$ cat pod.yaml
+apiVersion: v1
+kind: Pod                                            # 1
+metadata:
+  name: helloworld                                   # 2
+  namespace: finance
+  labels:                                            
+    app: helloworld
+spec:                                                # 3
+  containers:
+    - image: gvelrajan/helloworld:v2.0              # 4
+      imagePullPolicy: Always
+      name: helloworld                               # 5
+      ports:
+        - containerPort: 80                          # 6
+
+minikube:~$ kubectl create -f pod.yaml
+pod/helloworld created
+
+minikube:~$ kubectl get pods --namespace=finance
+NAME         READY   STATUS    RESTARTS   AGE
+helloworld   1/1     Running   0          10s
+
+minikube:~$ kubectl get pods --namespace finance --as ganesh
+Error from server (Forbidden): pods is forbidden: User &quot;ganesh&quot; cannot list pods in the namespace &quot;finance&quot;
+</code></pre>
+<p>Let&rsquo;s also check if the user &ldquo;ganesh&rdquo; has access to cluster resources like &ldquo;nodes&rdquo; that are not bound by a namespace.</p>
+<pre><code>minikube:~$ kubectl get nodes --namespace finance 
+NAME STATUS ROLES AGE VERSION
+minikube Ready master 1d v1.10.0
+minikube:~$ kubectl get nodes --namespace finance --as ganesh
+Error from server (Forbidden): nodes is forbidden: User &quot;ganesh&quot; cannot list nodes at the cluster scope
+minikube:~$
+</code></pre>
+<p>By default, a user doesn&rsquo;t have any access rights to any resources.  The admin needs to authorize the user to perform various actions or roles within the cluster or a in a namespace within the cluster.</p>
+<h2 id="authorization">Authorization:</h2>
+<h3 id="role-based-access-control-rbac">Role Based Access Control (RBAC)</h3>
+<p>Next, I&rsquo;ll show you how to authorize the user &ldquo;ganesh&rdquo; to perform various roles in a specific namespace or in the entire cluster using RBAC .</p>
+<pre><code>minikube-2:~$ cat role.yaml 
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  namespace: finance 
+  name: finance-reader
+rules:
+- apiGroups: [&quot;&quot;] # &quot;&quot; indicates the core API group
+  resources: [&quot;pods&quot;, &quot;services&quot;, &quot;nodes&quot;]
+  verbs: [&quot;get&quot;, &quot;watch&quot;, &quot;list&quot;]
+</code></pre>
+<p>Let&rsquo;s create the role using the above yaml file.</p>
+<pre><code>minikube:~$ kubectl create -f role.yaml 
+role.rbac.authorization.k8s.io/finance-reader created
+minikube:~$ kubectl get roles --namespace=finance
+NAME AGE
+finance-reader 56s
+</code></pre>
+<p>Next, we have to bind the role to the user.</p>
+<pre><code>minikube:~$ cat role-binding.yaml 
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: finance-read-access
+  namespace: finance 
+subjects:
+- kind: User
+  name: ganesh # Name is case sensitive
+  apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: Role #this must be Role or ClusterRole
+  name: finance-reader # this must match the name of the Role or ClusterRole you wish to bind to
+  apiGroup: rbac.authorization.k8s.io
+
+minikube:~$ kubectl create -f role-binding.yaml 
+rolebinding.rbac.authorization.k8s.io/finance-read-access created
+
+minikube:~$ kubectl get rolebindings --namespace=finance
+NAME AGE
+finance-read-access 42s
+minikube:~$
+</code></pre>
+<p>Let&rsquo;s check if the user &ldquo;ganesh&rdquo; has access to pods now.</p>
+<pre><code>minikube:~$ kubectl get pods --namespace=finance --as=ganesh
+NAME READY STATUS RESTARTS AGE
+helloworld 1/1 Running 0 43s
+
+minikube:~$ kubectl get pods --as=ganesh
+Error from server (Forbidden): pods is forbidden: User &quot;ganesh&quot; cannot list pods in the namespace &quot;default&quot;
+minikube:~$
+</code></pre>
+<p>User &ldquo;ganesh&rdquo; has access to pods in the &ldquo;finance&rdquo; namespace but not in any other namespace such as the &ldquo;default&rdquo; namespace.  This behaviour is as expected.</p>
+<p>Next, let&rsquo;s check if the user has access to any cluster resources like &ldquo;nodes&rsquo;</p>
+<pre><code>minikube:~$ kubectl get nodes --namespace=finance --as=ganesh
+Error from server (Forbidden): nodes is forbidden: User &quot;ganesh&quot; cannot list nodes at the cluster scope
+</code></pre>
+<p>User &ldquo;ganesh&rdquo; doesn&rsquo;t have access to &ldquo;nodes&rdquo;, despite granting access to it in the above &ldquo;role.yaml file.&rdquo;  Why ?</p>
+<p>This is because &ldquo;nodes&rdquo; is a cluster resource and not a resource that belongs to the &ldquo;finance&rdquo; namespace or any namespace.  So eventhough we had mentoned &ldquo;nodes&rdquo; as one of the resources in the  finance namespace &ldquo;role.yaml&rdquo; file above.  It semantically doesn&rsquo;t make any sense.  Hence user &ldquo;ganesh&rdquo; doesn&rsquo;t get any permission to read cluster nodes.</p>
+<p>How do we solve this problem ?</p>
+<p>The answer is: &ldquo;Cluster Role and Cluster Role Binding&rdquo;</p>
+<h3 id="create-cluster-role">Create Cluster Role</h3>
+<p>We need to create a Kubernetes Cluster Role and then bind the Cluster Role to the user &ldquo;ganesh&rdquo; to access the Kubernetes cluster nodes.</p>
+<pre><code>minikube:~$ cat cluster-role.yaml 
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  # &quot;namespace&quot; omitted since ClusterRoles are not namespaced
+  name: cluster-node-reader
+rules:
+- apiGroups: [&quot;&quot;]
+  resources: [&quot;nodes&quot;]
+  verbs: [&quot;get&quot;, &quot;watch&quot;, &quot;list&quot;]
+</code></pre>
+<p>Let&rsquo;s create the cluster role using the above yaml file.</p>
+<pre><code>minikube:~$ kubectl create -f cluster-role.yaml 
+clusterrole.rbac.authorization.k8s.io/cluster-node-reader created
+
+
+minikube:~$ kubectl get clusterroles
+NAME                                                AGE
+admin                                               25h
+cluster-admin                                       25h
+cluster-node-reader                                 19s
+edit                                                25h
+system:aggregate-to-admin                           25h
+...
+...
+
+system:node-problem-detector                        25h
+system:node-proxier                                 25h
+system:persistent-volume-provisioner                25h
+system:volume-scheduler                             25h
+view                                                25h
+</code></pre>
+<h3 id="cluter-role-binding">Cluter Role Binding</h3>
+<p>Next, let&rsquo;s use the following Cluster Role Binding to bind the Cluster Role to the user &ldquo;ganesh&rdquo;.</p>
+<pre><code>minikube:~$ cat cluster-role-binding.yaml 
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: read-cluster-nodes
+subjects:
+- kind: User
+  name: ganesh # Name is case sensitive
+  apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: ClusterRole
+  name: cluster-node-reader
+  apiGroup: rbac.authorization.k8s.io
+
+minikube:~$ kubectl create -f cluster-role-binding.yaml 
+clusterrolebinding.rbac.authorization.k8s.io/read-cluster-nodes created
+minikube:~$ kubectl get clusterrolebindings
+NAME                                                   AGE
+cluster-admin                                          26h
+kubeadm:kubelet-bootstrap                              26h
+kubeadm:node-autoapprove-bootstrap                     26h
+kubeadm:node-autoapprove-certificate-rotation          26h
+kubeadm:node-proxier                                   26h
+minikube-rbac                                          26h
+read-cluster-nodes                                     10s
+storage-provisioner                                    26h
+system:aws-cloud-provider                              26h
+system:basic-user                                      26h
+...
+...
+system:kube-controller-manager                         26h
+system:kube-dns                                        26h
+system:kube-scheduler                                  26h
+system:node                                            26h
+system:node-proxier                                    26h
+system:volume-scheduler                                26h
+</code></pre>
+<h3 id="verify-users-cluster-roles">Verify User&rsquo;s Cluster Roles</h3>
+<p>Now let&rsquo;s check if the user &ldquo;ganesh&rdquo; has access to read the cluster nodes.</p>
+<pre><code>minikube:~$ kubectl get nodes --namespace=finance --as=ganesh
+NAME       STATUS   ROLES    AGE   VERSION
+minikube   Ready    master   1d    v1.10.0
+</code></pre>
+<p>We don&rsquo;t have to specify the &ldquo;&ndash;namespace&rdquo; option because nodes are cluster resources and not bound to any namespace.</p>
+<pre><code>minikube:~$ kubectl get nodes  --as=ganesh
+NAME       STATUS   ROLES    AGE   VERSION
+minikube   Ready    master   1d    v1.10.0
+</code></pre>
+<p>Let&rsquo;s check if user &ldquo;ganesh&rdquo; has access to any other cluster resource other than &ldquo;nodes&rdquo;.</p>
+<pre><code>minikube:~$ kubectl get secrets  --as=ganesh
+Error from server (Forbidden): secrets is forbidden: User &quot;ganesh&quot; cannot list secrets 
+in the namespace &quot;default&quot;
+</code></pre>
+<p>As we expected, user &ldquo;ganesh&rdquo; cannot access any other cluster resources except for the &ldquo;nodes&rdquo;.</p>
+<p>That&rsquo;s also folks, I have to discuss today, about security and user authentication, authorization using RBAC.</p>
+
+
+</article>
+
+
+<section class="post-nav">
+    <ul>
+        
+        <li>
+            <a href="http://www.ethernetresearch.com/geekzone/accessing-kubernetes-api-server-through-rest-apis/"><i class="fa fa-chevron-circle-left"></i> Accessing Kubernetes API Server Through REST API&#39;s</a>
+        </li>
+        
+        
+        <li>
+            <a href="http://www.ethernetresearch.com/geekzone/kubernetes-security-configuring-network-policies/">Kubernetes Security - Configuring Network Policies <i class="fa fa-chevron-circle-right"></i> </a>
+        </li>
+        
+    </ul>
+</section>
+  
+    
+    
+  
+
+
+
+
+
+</main>
+    <footer>
+        <h6>Copyright © 2021 - Ethernet Research | All Rights Reserved.</h6>
+    </footer>
+</div>
+<script src="http://www.ethernetresearch.com/js/scripts.js"></script>
+
+
+</body>
+
+</html>
+
