@@ -1,4 +1,17 @@
-# Kubernetes Worker Node Remote SSH Access
+---
+title: Kubernetes Worker Node Remote SSH Access
+description: ""
+author: Ganesh Velrajan
+tags: [
+    Container, Docker, Kubernetes, Pod, Remote Access
+]
+date: 2020-10-29
+categories: [
+    GeekZone, Kubernetes
+]
+images: ["/images/kubernetes/kubernetes.jpg"]
+---
+
 Kubernetes is a very popular and widely deployed container management and orchestration platform, preferred by devops engineers worldwide today.
 
 Usually Kubernetes clusters and their worker nodes are not exposed to the public Internet but the apps running in them are.

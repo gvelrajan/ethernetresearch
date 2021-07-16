@@ -1,4 +1,17 @@
-# Kubernetes Cluster Remote Access
+---
+title: Kubernetes Cluster Remote Access
+description: ""
+author: Ganesh Velrajan
+tags: [
+    Container, Docker, Kubernetes, Cluster, Remote Access
+]
+date: 2020-10-29
+categories: [
+    GeekZone, Kubernetes
+]
+images: ["/images/kubernetes/kubernetes.jpg"]
+---
+
 Kubernetes is a popular cluster and container management/orchestration platform widely used in pulic and private clouds.  SocketXP TLS VPN solution (a lightweight VPN) provides secure remote access to private Kubernetes Clusters in your private or public cloud.
 
 SocketXP agent is available as a docker container in the [SocketXP DockerHub Repository](https://hub.docker.com/r/expresssocket/socketxp) and can be run in the following modes in a Kubernetes Cluster:

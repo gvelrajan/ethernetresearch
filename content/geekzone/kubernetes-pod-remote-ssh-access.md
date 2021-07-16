@@ -1,4 +1,17 @@
-# Kubernetes Pod Remote SSH Access
+---
+title: Kubernetes Pod Remote SSH Access
+description: ""
+author: Ganesh Velrajan
+tags: [
+    Container, Docker, Kubernetes, Pod, Remote Access
+]
+date: 2020-10-29
+categories: [
+    GeekZone, Kubernetes
+]
+images: ["/images/kubernetes/kubernetes.jpg"]
+---
+
 Kubernetes is a popular cluster and container management/orchestration platform widely used in public and private clouds.  
 
 SocketXP TLS VPN solution is a lightweight VPN that provides secure remote SSH access to pods running private Kubernetes Clusters in your on-prem cloud or public cloud or multi-cloud or hybrid cloud.

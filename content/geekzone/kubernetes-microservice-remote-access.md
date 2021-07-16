@@ -1,4 +1,17 @@
-# Kubernetes Microservice Remote Access
+---
+title: Kubernetes Microservice Remote Access
+description: ""
+author: Ganesh Velrajan
+tags: [
+    Container, Docker, Kubernetes, Microservice, Remote Access
+]
+date: 2020-10-29
+categories: [
+    GeekZone, Kubernetes
+]
+images: ["/images/kubernetes/kubernetes.jpg"]
+---
+
 In this document, we'll discuss how to develop, debug, and test a microservice locally on your laptop, without having to run all the other microservices of an app also on your laptop.
 
 The solution discussed in this document could also be used to debug, fix, and test a problem reported by your customer in your live production cluster by routing accesses to your microservice (that has the bug) to the one running in your laptop with the fix.
