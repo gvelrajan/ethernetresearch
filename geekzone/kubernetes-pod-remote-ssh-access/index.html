@@ -1,0 +1,217 @@
+<!doctype html><html lang=en><head><title>Ethernet Research</title><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=description content="Ethernet Research: Actionable information about cloud technologies at your fingertips"><meta name=author content="Ganesh Velrajan"><meta property="og:title" content><meta property="og:description" content="Kubernetes Pod Remote SSH Access Kubernetes is a popular cluster and container management/orchestration platform widely used in public and private clouds.
+SocketXP TLS VPN solution is a lightweight VPN that provides secure remote SSH access to pods running private Kubernetes Clusters in your on-prem cloud or public cloud or multi-cloud or hybrid cloud."><meta property="og:type" content="article"><meta property="og:url" content="http://www.ethernetresearch.com/geekzone/kubernetes-pod-remote-ssh-access/"><meta name=twitter:card content="summary"><meta name=twitter:title content><meta name=twitter:description content="Kubernetes Pod Remote SSH Access Kubernetes is a popular cluster and container management/orchestration platform widely used in public and private clouds.
+SocketXP TLS VPN solution is a lightweight VPN that provides secure remote SSH access to pods running private Kubernetes Clusters in your on-prem cloud or public cloud or multi-cloud or hybrid cloud."><meta name=generator content="Hugo 0.79.1"><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css integrity="sha256-l85OmPOjvil/SOvVt3HnSSjzF1TUMyT9eV0c2BzEGzU=" crossorigin=anonymous><link rel=stylesheet href=http://www.ethernetresearch.com/fontawesome/css/all.min.css><link rel=stylesheet href="https://fonts.googleapis.com/css?family=Roboto+Slab|Ruda"><link rel=stylesheet type=text/css href=http://www.ethernetresearch.com/css/styles.css></head><body><div id=container><header><h1><a href=http://www.ethernetresearch.com/>Ethernet Research</a></h1><ul id=social-media><li><a href=https://linkedin.com/in/username title=LinkedIn><i class="fab fa-linkedin fa-lg"></i></a></li><li><a href=https://www.youtube.com/channel/UCnmHCstjZcevizOQ0qmANlw title=Youtube><i class="fab fa-youtube fa-lg"></i></a></li></ul><p><em>Actionable information about cloud technologies</em></p></header><nav><ul><li><a href=http://www.ethernetresearch.com/geekzone/><i class="fa-li fa fa-lg"></i><span>GeekZone</span></a></li><li><a href=http://www.ethernetresearch.com/articles/><i class="fa-li fa fa-lg"></i><span>Articles</span></a></li><li><a href=http://www.ethernetresearch.com/about/><i class="fa-li fa fa-lg"></i><span>About Us</span></a></li><li><a href=http://www.ethernetresearch.com/online-courses-training/><i class="fa-li fa fa-lg"></i><span>Online Courses</span></a></li><li><a href=http://www.ethernetresearch.com/contact/><i class="fa-li fa fa-lg"></i><span>Contact</span></a></li></ul></nav><main><article><h1></h1><aside><ul><li><time class=post-date datetime=0001-01-01T00:00:00Z>Jan 1, 0001</time></li><li>9 minute read</li></ul></aside><h1 id=kubernetes-pod-remote-ssh-access>Kubernetes Pod Remote SSH Access</h1><p>Kubernetes is a popular cluster and container management/orchestration platform widely used in public and private clouds.</p><p>SocketXP TLS VPN solution is a lightweight VPN that provides secure remote SSH access to pods running private Kubernetes Clusters in your on-prem cloud or public cloud or multi-cloud or hybrid cloud.</p><p>SocketXP Solution provides two options to SSH into your Kubernetes pods:</p><ul><li>Install and run SocketXP agent inside your app container</li><li>Run SocketXP agent container as a standalone container</li></ul><h2 id=option-1-install-socketxp-inside-your-app-container>Option #1: Install SocketXP inside your app container:</h2><p>Let&rsquo;s assume for the illustration purpose that you have the following helloworld nodejs app.</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>$cat myapp.js 
+var http <span style=color:#f92672>=</span> require<span style=color:#f92672>(</span><span style=color:#e6db74>&#39;http&#39;</span><span style=color:#f92672>)</span>;
+//create a server object:
+http.createServer<span style=color:#f92672>(</span><span style=color:#66d9ef>function</span> <span style=color:#f92672>(</span>req, res<span style=color:#f92672>)</span> <span style=color:#f92672>{</span>
+res.writeHead<span style=color:#f92672>(</span>200, <span style=color:#f92672>{</span><span style=color:#e6db74>&#39;Content-Type&#39;</span>: <span style=color:#e6db74>&#39;text/html&#39;</span><span style=color:#f92672>})</span>;
+res.write<span style=color:#f92672>(</span><span style=color:#e6db74>&#39;&lt;h1&gt;Hello World!&lt;/h1&gt;&#39;</span><span style=color:#f92672>)</span>; //write a response to the client
+res.end<span style=color:#f92672>()</span>; //end the response
+<span style=color:#f92672>})</span>.listen<span style=color:#f92672>(</span>80<span style=color:#f92672>)</span>; //the http server object listens on port <span style=color:#ae81ff>80</span>
+</code></pre></div><p>And your Dockerfile looks something like this:</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>$cat Dockerfile 
+FROM centos:latest
+
+<span style=color:#75715e># your app specific stuff </span>
+RUN yum -y install nodejs
+RUN mkdir -p /usr/src/app
+COPY ./myapp.js /usr/src/app
+WORKDIR /usr/src/app
+EXPOSE <span style=color:#ae81ff>80</span> 
+ENTRYPOINT <span style=color:#f92672>[</span><span style=color:#e6db74>&#34;node&#34;</span>,<span style=color:#e6db74>&#34;myapp.js&#34;</span><span style=color:#f92672>]</span>
+</code></pre></div><p>You might build a Docker container image with the name <code>helloworld</code>, as shown below:</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>$ docker build -t socketxp/helloworld .
+</code></pre></div><p>And run your <code>helloworld</code> Docker container as shown below:</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>$ docker run --name <span style=color:#e6db74>&#34;helloworld&#34;</span> -p 80:8000 socketxp/helloworld
+</code></pre></div><p>Now you could access your app on port 8000 locally on your host machine as:</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>$ curl http://localhost:8000
+&lt;h1&gt;Hello World!&lt;/h1&gt;
+</code></pre></div><p>Alternatively, you could run your <code>helloworld</code> Docker container as a pod in a Kubernetes cluster using the following <code>deployment.yaml</code>.</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml><span style=color:#ae81ff>kube-master-node$ cat deployment.yaml </span>
+<span style=color:#f92672>apiVersion</span>: <span style=color:#ae81ff>apps/v1</span>
+<span style=color:#f92672>kind</span>: <span style=color:#ae81ff>Deployment                                          </span>
+<span style=color:#f92672>metadata</span>:
+  <span style=color:#f92672>name</span>: <span style=color:#ae81ff>helloworld</span>
+<span style=color:#f92672>spec</span>:
+  <span style=color:#f92672>replicas</span>: <span style=color:#ae81ff>2</span>                                             
+  <span style=color:#f92672>minReadySeconds</span>: <span style=color:#ae81ff>15</span>
+  <span style=color:#f92672>strategy</span>:
+    <span style=color:#f92672>type</span>: <span style=color:#ae81ff>RollingUpdate                                   </span>
+    <span style=color:#f92672>rollingUpdate</span>: 
+      <span style=color:#f92672>maxUnavailable</span>: <span style=color:#ae81ff>1</span>                                   
+      <span style=color:#f92672>maxSurge</span>: <span style=color:#ae81ff>1</span>                                         
+  <span style=color:#f92672>template</span>:                                              
+    <span style=color:#f92672>metadata</span>:
+      <span style=color:#f92672>labels</span>:
+        <span style=color:#f92672>app</span>: <span style=color:#ae81ff>helloworld                                   </span>
+    <span style=color:#f92672>spec</span>:
+      <span style=color:#f92672>containers</span>:
+        - <span style=color:#f92672>image</span>: <span style=color:#ae81ff>socketxp/hello-world:latest </span>
+          <span style=color:#f92672>imagePullPolicy</span>: <span style=color:#ae81ff>Always                         </span>
+          <span style=color:#f92672>name</span>: <span style=color:#ae81ff>helloworld </span>
+          <span style=color:#f92672>ports</span>:
+            - <span style=color:#f92672>containerPort</span>: <span style=color:#ae81ff>80</span>
+</code></pre></div><p>You could create a Kubernetes service using the <code>service.yaml</code> shown below to expose your <code>helloworld</code> Nodejs app to the internet.</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml><span style=color:#ae81ff>kube-master-node$ cat service.yaml </span>
+<span style=color:#f92672>apiVersion</span>: <span style=color:#ae81ff>v1</span>
+<span style=color:#f92672>kind</span>: <span style=color:#ae81ff>Service              </span>
+<span style=color:#f92672>metadata</span>:
+  <span style=color:#f92672>name</span>: <span style=color:#ae81ff>helloworld</span>
+<span style=color:#f92672>spec</span>:
+  <span style=color:#f92672>externalIPs</span>:
+  - <span style=color:#ae81ff>34.160.0.3</span>
+  <span style=color:#f92672>type</span>: <span style=color:#ae81ff>LoadBalancer       </span>
+  <span style=color:#f92672>ports</span>:
+  - <span style=color:#f92672>port</span>: <span style=color:#ae81ff>80</span>               
+    <span style=color:#f92672>protocol</span>: <span style=color:#ae81ff>TCP          </span>
+    <span style=color:#f92672>targetPort</span>: <span style=color:#ae81ff>80</span>         
+  <span style=color:#f92672>selector</span>:                
+    <span style=color:#f92672>app</span>: <span style=color:#ae81ff>helloworld        </span>
+</code></pre></div><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>kube-master-node$ kubectl apply -f service.yaml
+</code></pre></div><p>Now you could access your <code>helloworld</code> nodejs app using the public IP as shown below:</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>$curl http://34.160.0.3:80
+&lt;h1&gt;Hello World!&lt;/h1&gt;
+</code></pre></div><p>So far so good.</p><h3 id=add-remote-ssh-access-capability>Add Remote SSH Access Capability</h3><p>But in the future, if your <code>helloworld</code> app behaves erratically and you may want to SSH into one of the pods from a remote machine to debug it, you need a Kubernetes Pod Remote Access Service like SocketXP.</p><p>Follow the instructions below to package SocketXP Remote Access Agent binary along with your <code>helloworld</code> nodejs app in your <code>socketxp/helloworld:latest</code> Docker container, so that you could SSH into your pods from remote.</p><p>Here are the instructions to package the SocketXP Remote Access Agent binary into your <code>helloworld</code> docker container. We&rsquo;ll name the new docker container, as <code>helloworld-ssh</code> docker container because the new container has remote SSH access capabilities.</p><p>First, download SocketXP agent to your local directory</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>curl -O https://portal.socketxp.com/download/linux/socketxp <span style=color:#f92672>&amp;&amp;</span> chmod +wx socketxp
+</code></pre></div><p>Create a shell script file named <code>script.sh</code> with the following contents.</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>$cat script.sh 
+<span style=color:#75715e>#!/bin/sh</span>
+/var/local/socketxp/socketxp login $AUTHTOKEN --no-auto-update
+/var/local/socketxp/socketxp connect tcp://localhost:22 --iot-device-id $HOSTNAME --enable-sshd --ssh-username $SSH_USERNAME --ssh-password $SSH_PASSWORD --no-auto-update &amp;
+
+<span style=color:#75715e># Run myapp</span>
+node /usr/src/app/myapp.js
+</code></pre></div><p>Here is a sample Dockerfile that packages the SocketXP agent binary, the script.sh file, and instructions to run it, along with the contents of your <code>helloworld</code> nodejs app Dockerfile.</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>$cat Dockerfile 
+FROM centos:latest
+
+<span style=color:#75715e># your app specific stuff </span>
+RUN yum -y install nodejs
+RUN mkdir -p /usr/src/app
+COPY ./myapp.js /usr/src/app
+WORKDIR /usr/src/app
+EXPOSE <span style=color:#ae81ff>8000</span> 
+<span style=color:#75715e>#ENTRYPOINT [&#34;node&#34;,&#34;myapp.js&#34;]</span>
+
+<span style=color:#75715e># SocketXP Environ Variables</span>
+ENV LANG C.UTF-8
+ENV AUTHTOKEN <span style=color:#e6db74>&#34;&#34;</span>
+ENV SSH_USERNAME <span style=color:#e6db74>&#34;&#34;</span>
+ENV SSH_PASSWORD <span style=color:#e6db74>&#34;&#34;</span>
+ENV IOT_DEVICE_ID <span style=color:#e6db74>&#34;&#34;</span>
+
+<span style=color:#75715e># Install and run SocketXP agent binary</span>
+RUN mkdir -p /var/local/socketxp
+COPY script.sh /var/local/socketxp/
+COPY socketxp /var/local/socketxp/
+WORKDIR /var/local/socketxp
+RUN chmod a+x socketxp
+EXPOSE <span style=color:#ae81ff>22</span>
+
+ENTRYPOINT <span style=color:#f92672>[</span><span style=color:#e6db74>&#34;/bin/sh&#34;</span>, <span style=color:#e6db74>&#34;script.sh&#34;</span><span style=color:#f92672>]</span>
+</code></pre></div><p>Now let&rsquo;s create a new Docker image named <code>helloworld-ssh</code> as shown below:</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>$ docker build -t socketxp/helloworld-ssh .
+</code></pre></div><h3 id=run-as-docker-container-on-host-machine>Run as Docker Container on Host Machine:</h3><p>Now you could run this Docker container on your host machine as shown below:</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>$ docker run --name helloworld-ssh -d -p 80:8000 -e SSH_USERNAME<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;test-user&#34;</span> -e SSH_PASSWORD<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;pa</span>$$<span style=color:#e6db74>word123&#34;</span> -e AUTHTOKEN<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;&lt;your-socketxp-authtoken-goes-here&gt;&#34;</span> socketxp/helloworld-ssh:latest
+</code></pre></div><p>You could access your nodejs app from your host machine as shown below:</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>$curl http://localhost:8000
+&lt;h1&gt;Hello World!&lt;/h1&gt;
+</code></pre></div><p>You could SSH into your Docker container from the <a href=https://portal.socketxp.com/#/devices>SocketXP Portal&rsquo;s IoT Device Page</a>. Click the terminal icon next to your container listed in the page. [<strong>Note</strong>: The Docker container ID of the app will be listed under the DeviceID column]. It will take you to an SSH login window in a new tab. Provide the same SSH login credentials that you provided in the &ldquo;docker run&rdquo; command above. You&rsquo;ll get shell access to your <code>helloworld-ssh</code> Docker container.</p><h3 id=run-as-kubernetes-pod>Run as Kubernetes Pod:</h3><p>Alternatively, you could run the <code>socketxp/helloworld-ssh:latest</code> Docker container as a Kubernetes pod/deployment/service and you could remote SSH into this pod using the SSH credentials you have setup.</p><p>Here is how your new deployment.yaml file would look like:</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml><span style=color:#ae81ff>$cat deployment.yaml </span>
+<span style=color:#f92672>apiVersion</span>: <span style=color:#ae81ff>apps/v1</span>
+<span style=color:#f92672>kind</span>: <span style=color:#ae81ff>Deployment                                          </span>
+<span style=color:#f92672>metadata</span>:
+  <span style=color:#f92672>name</span>: <span style=color:#ae81ff>helloworld-ssh</span>
+<span style=color:#f92672>spec</span>:
+  <span style=color:#f92672>replicas</span>: <span style=color:#ae81ff>2</span>                                             
+  <span style=color:#f92672>minReadySeconds</span>: <span style=color:#ae81ff>15</span>
+  <span style=color:#f92672>strategy</span>:
+    <span style=color:#f92672>type</span>: <span style=color:#ae81ff>RollingUpdate                                   </span>
+    <span style=color:#f92672>rollingUpdate</span>: 
+      <span style=color:#f92672>maxUnavailable</span>: <span style=color:#ae81ff>1</span>                                   
+      <span style=color:#f92672>maxSurge</span>: <span style=color:#ae81ff>1</span>                                         
+  <span style=color:#f92672>template</span>:                                              
+    <span style=color:#f92672>metadata</span>:
+      <span style=color:#f92672>labels</span>:
+        <span style=color:#f92672>app</span>: <span style=color:#ae81ff>helloworld-ssh    </span>
+    <span style=color:#f92672>spec</span>:
+      <span style=color:#f92672>containers</span>:
+      - <span style=color:#f92672>name</span>: <span style=color:#ae81ff>helloworld-ssh</span>
+        <span style=color:#f92672>image</span>: <span style=color:#ae81ff>socketxp/helloworld-ssh:latest</span>
+        <span style=color:#f92672>imagePullPolicy</span>: <span style=color:#ae81ff>Always</span>
+        <span style=color:#f92672>env</span>:
+          - <span style=color:#f92672>name</span>: <span style=color:#ae81ff>AUTHTOKEN</span>
+            <span style=color:#f92672>valueFrom</span>:
+              <span style=color:#f92672>secretKeyRef</span>:
+                <span style=color:#f92672>name</span>: <span style=color:#ae81ff>socketxp-credentials</span>
+                <span style=color:#f92672>key</span>: <span style=color:#ae81ff>authtoken </span>
+          - <span style=color:#f92672>name</span>: <span style=color:#ae81ff>SSH_USERNAME </span>
+            <span style=color:#f92672>valueFrom</span>:
+              <span style=color:#f92672>secretKeyRef</span>:
+                <span style=color:#f92672>name</span>: <span style=color:#ae81ff>socketxp-credentials</span>
+                <span style=color:#f92672>key</span>: <span style=color:#ae81ff>ssh_username </span>
+          - <span style=color:#f92672>name</span>: <span style=color:#ae81ff>SSH_PASSWORD</span>
+            <span style=color:#f92672>valueFrom</span>:
+              <span style=color:#f92672>secretKeyRef</span>:
+                <span style=color:#f92672>name</span>: <span style=color:#ae81ff>socketxp-credentials</span>
+                <span style=color:#f92672>key</span>: <span style=color:#ae81ff>ssh_password </span>
+</code></pre></div><p>But, before you could apply this <code>deployment.yaml</code> in a Kubernetes cluster, you need to create the environment variables used by SocketXP agent in the <code>deployment.yaml</code> file above.</p><h3 id=socketxp-env-variables-creation>SocketXP ENV variables creation</h3><p>First go to <a href=https://portal.socketxp.com>SocketXP Portal</a>. Signup for a free account and get your authtoken there. Use the authtoken to create a Kubernetes secret as shown below.</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>kubectl create secret generic socketxp-credentials --from-literal<span style=color:#f92672>=</span>authtoken<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;&lt;your-auth-token-goes-here&gt;&#34;</span> --from-literal<span style=color:#f92672>=</span>ssh_username<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;test-user&#34;</span> --from-literal<span style=color:#f92672>=</span>ssh_password<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;pa</span>$$<span style=color:#e6db74>word123&#34;</span>
+</code></pre></div><p>You could specify your own SSH login username and password in the above CLI. You&rsquo;ll be prompted to provide the same username and password when you attempt to SSH login using any SSH client.</p><p>Verify that the secret <code>socketxp-credentials</code> got created.</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>$ kubectl get secrets
+NAME                   TYPE                                  DATA   AGE
+default-token-5skb7    kubernetes.io/service-account-token   <span style=color:#ae81ff>3</span>      4h
+socketxp-credentials   Opaque                                <span style=color:#ae81ff>1</span>      4h
+$
+</code></pre></div><p>Now that we have created the secrets needed by the SocketXP agent, it&rsquo;s time to launch the <code>helloworld-ssh</code> deployment using the <code>deployment.yaml</code> file above.</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>kube-master-node$ kubectl apply -f deployment.yaml
+</code></pre></div><p>Your <code>helloworld</code> loadbalancer service could continue to run as it is without any changes. This is because SocketXP Remote Access Agent doesn&rsquo;t require any Kubernetes Service to be created for it. The agent would automatically create a secure TLS VPN tunnel to the SocketXP Cloud Gateway, from where you could SSH into your pods.</p><p>Go to the SocketXP Cloud Gateway Portal&rsquo;s <a href=https://portal.socketxp.com/#/devices>IoT Devices Page</a> using your browser. You&rsquo;ll see your pods (2 replicas) listed as IoT Devices. You could SSH into your pods by clicking the terminal icon next to them. It will open up an SSH Login window in a new tab. Enter the same SSH login credentials you provided when creating the Kubernetes secret <code>socketxp-credentials</code>.</p><p>After successful authentication, you&rsquo;ll be provided with the pod&rsquo;s shell prompt.</p><h2 id=option-2-run-socketxp-as-a-standalone-container>Option #2: Run SocketXP as a Standalone Container:</h2><p>In this second option, you need to run SocketXP Agent Docker container as a standalone container pod in your Kubernetes cluster, so that you could get remote SSH access to other pods(your apps) running in the cluster, through this SocketXP Agent pod.</p><p>SocketXP Agent Docker container is shipped with an SSH server daemon and Kubernetes <a href=https://kubernetes.io/docs/tasks/tools/install-kubectl/><code>kubectl</code></a> CLI utility packaged in it. SocketXP Docker container can be downloaded from the <a href=https://hub.docker.com/r/expresssocket/socketxp-kubectl>SocketXP DockerHub Repository</a>. This turn-key solution from SocketXP lets you to setup a remote SSH into a pod in your private cluster, in just few minutes.</p><p>Let&rsquo;s get started.</p><p>First go to <a href=https://porta.socketxp.com/>SocketXP Portal</a>. Signup for a free account and get your authtoken there. Use the authtoken to create a Kubernetes secret as shown below.</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>kubectl create secret generic socketxp-credentials --from-literal<span style=color:#f92672>=</span>authtoken<span style=color:#f92672>=[</span>your-auth-token-goes-here<span style=color:#f92672>]</span> --from-literal<span style=color:#f92672>=</span>ssh_username<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;test-user&#34;</span> --from-literal<span style=color:#f92672>=</span>ssh_password<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;password123&#34;</span>
+</code></pre></div><p>You could specify your own SSH login username and password in the above CLI. You&rsquo;ll be prompted to provide the same username and password when you attempt to SSH login using any SSH client.</p><p>Verify that the secret <code>socketxp-credentials</code> got created.</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>$ kubectl get secrets
+NAME                   TYPE                                  DATA   AGE
+default-token-5skb7    kubernetes.io/service-account-token   <span style=color:#ae81ff>3</span>      4h
+socketxp-credentials   Opaque                                <span style=color:#ae81ff>1</span>      4h
+$
+</code></pre></div><p>Now that we have created the secrets needed by the SocketXP agent, it&rsquo;s time to launch the SocketXP Docker container <code>expresssocket/socketxp-kubectl:latest</code> as a Kubernetes Deployment.</p><p>Here is the <code>deployment.yaml</code> file we&rsquo;ll use to create a standalone SocketXP agent deployment.</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml><span style=color:#ae81ff>$cat deployment.yaml </span>
+<span style=color:#f92672>apiVersion</span>: <span style=color:#ae81ff>apps/v1</span>
+<span style=color:#f92672>kind</span>: <span style=color:#ae81ff>Deployment</span>
+<span style=color:#f92672>metadata</span>:
+  <span style=color:#f92672>name</span>: <span style=color:#ae81ff>socketxp</span>
+  <span style=color:#f92672>labels</span>:
+    <span style=color:#f92672>app</span>: <span style=color:#ae81ff>socketxp</span>
+<span style=color:#f92672>spec</span>:
+  <span style=color:#f92672>replicas</span>: <span style=color:#ae81ff>1</span>
+  <span style=color:#f92672>selector</span>:
+    <span style=color:#f92672>matchLabels</span>:
+      <span style=color:#f92672>app</span>: <span style=color:#ae81ff>socketxp</span>
+  <span style=color:#f92672>template</span>:
+    <span style=color:#f92672>metadata</span>:
+      <span style=color:#f92672>labels</span>:
+        <span style=color:#f92672>app</span>: <span style=color:#ae81ff>socketxp</span>
+    <span style=color:#f92672>spec</span>:
+      <span style=color:#f92672>containers</span>:
+      - <span style=color:#f92672>name</span>: <span style=color:#ae81ff>socketxp</span>
+        <span style=color:#f92672>image</span>: <span style=color:#ae81ff>expresssocket/socketxp-kubectl:latest</span>
+        <span style=color:#f92672>imagePullPolicy</span>: <span style=color:#ae81ff>Always</span>
+        <span style=color:#f92672>env</span>:
+          - <span style=color:#f92672>name</span>: <span style=color:#ae81ff>AUTHTOKEN</span>
+            <span style=color:#f92672>valueFrom</span>:
+              <span style=color:#f92672>secretKeyRef</span>:
+                <span style=color:#f92672>name</span>: <span style=color:#ae81ff>socketxp-credentials</span>
+                <span style=color:#f92672>key</span>: <span style=color:#ae81ff>authtoken </span>
+          - <span style=color:#f92672>name</span>: <span style=color:#ae81ff>SSH_USERNAME </span>
+            <span style=color:#f92672>valueFrom</span>:
+              <span style=color:#f92672>secretKeyRef</span>:
+                <span style=color:#f92672>name</span>: <span style=color:#ae81ff>socketxp-credentials</span>
+                <span style=color:#f92672>key</span>: <span style=color:#ae81ff>ssh_username </span>
+          - <span style=color:#f92672>name</span>: <span style=color:#ae81ff>SSH_PASSWORD</span>
+            <span style=color:#f92672>valueFrom</span>:
+              <span style=color:#f92672>secretKeyRef</span>:
+                <span style=color:#f92672>name</span>: <span style=color:#ae81ff>socketxp-credentials</span>
+                <span style=color:#f92672>key</span>: <span style=color:#ae81ff>ssh_password </span>
+</code></pre></div><p>Now create a deployment using the <code>deployment.yaml</code> file and check the status of the pods.</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>$ kubectl apply -f deployment.yaml 
+deployment.apps/socketxp created
+</code></pre></div><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>$ kubectl get pods
+NAME                        READY   STATUS    RESTARTS   AGE
+socketxp-75cb4dd7c9-bhxfp   1/1     Running   <span style=color:#ae81ff>0</span>          4s
+$
+</code></pre></div><p>Check the pod logs to see if everything went on well as we had expected and there are no errors.</p><pre><code>$ kubectl logs socketxp-75cb4dd7c9-bhxfp
+...
+...
+
+Login Succeeded.
+User [] Email [test-user@gmail.com].
+
+Connected.
+TCP tunnel [test-user-vbmyrruv] created.
+Access the tunnel using SocketXP agent in IoT Slave Mode.
+
+</code></pre><p>You can now SSH into this pod from the SocketXP Portal&rsquo;s IoT Device Access Page: <a href=%22https://portal.socketxp.com/#/devices%22>https://portal.socketxp.com/#/devices</a>. Click the terminal icon there, to SSH into the <code>socketxp-75cb4dd7c9-bhxfp</code> pod.</p><p>You&rsquo;ll be prompted to enter the SSH username and the SSH password. This should match the ones you provided earlier when you configured the kubernetes secret <code>socketxp-credentials</code> above.</p><p>Once you are logged in, you&rsquo;ll be provided with the pod container&rsquo;s root shell prompt, which would look like this.</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh><span style=color:#f92672>[</span>root@socketxp-75cb4dd7c9-bhxfp socketxp<span style=color:#f92672>]</span><span style=color:#75715e>#</span>
+</code></pre></div><p>The <code>expresssocket/socketxp-kubectl</code> container is packaged with the <code>kubectl</code> utility in it. So you could execute any kubectl command from this pod shell.</p><pre><code>[root@socketxp-75cb4dd7c9-bhxfp socketxp]# kubectl get pods
+NAME                        READY   STATUS    RESTARTS   AGE
+socketxp-75cb4dd7c9-bhxfp   1/1     Running   0          7m
+[root@socketxp-75cb4dd7c9-bhxfp socketxp]# 
+</code></pre><p>You could now connect to the shell of any other pod in the cluster, using the following kubectl command:</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>kubectl exec --stdin --tty &lt;pod-name&gt; -c &lt;container-name&gt;
+</code></pre></div><p>You can skip the <code>-c</code> option in the above command if the pod has only one container.</p><h3 id=security-best-practices>Security Best Practices</h3><p>Enterprises usually run Kubernetes clusters privately and not publicly. They don&rsquo;t expose the clusters to the internet for security reasons. Ideally Kubernetes clusters should not be directly exposed to the internet by configuring the ClusterIP or the NodeIP with a public IP address. Only the application that needs to be exposed to the internet, should be exposed to the internet via a load-balancer configured with public IP. This approach reduces the attack surface for any potential attacks.</p><p>Moreover, you should use a VPN solution to gain remote SSH access to the private cluster and its resources.</p><p>But most VPN solutions in the market are heavy, clunky and cost more money. It is highly recommended to use a lightweight VPN soloution such as SocketXP to securely access your private Kubernetes cluster resources.</p></article><section class=post-nav><ul><li><a href=http://www.ethernetresearch.com/geekzone/kubernetes-worker-node-remote-ssh-access/><i class="fa fa-chevron-circle-left"></i></a></li><li><a href=http://www.ethernetresearch.com/geekzone/kubernetes-microservice-remote-access/><i class="fa fa-chevron-circle-right"></i></a></li></ul></section></main><footer><h6>Copyright © 2021 - Ethernet Research | All Rights Reserved.</h6></footer></div><script src=http://www.ethernetresearch.com/js/scripts.js></script></body></html>

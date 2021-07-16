@@ -1,0 +1,105 @@
+<!doctype html><html lang=en><head><title>Ethernet Research</title><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=description content="Ethernet Research: Actionable information about cloud technologies at your fingertips"><meta name=author content="Ganesh Velrajan"><meta property="og:title" content><meta property="og:description" content="Kubernetes Dashboard Remote Access Kubernetes is a popular cluster and container management/orchestration platform widely used in pulic and private clouds. Kubernetes Dashboard is a web-based Kubernetes user interface. You can use Dashboard to deploy containerized applications to a Kubernetes cluster, troubleshoot your containerized application, and manage the cluster resources."><meta property="og:type" content="article"><meta property="og:url" content="http://www.ethernetresearch.com/geekzone/kubernetes-dashboard-remote-access/"><meta name=twitter:card content="summary"><meta name=twitter:title content><meta name=twitter:description content="Kubernetes Dashboard Remote Access Kubernetes is a popular cluster and container management/orchestration platform widely used in pulic and private clouds. Kubernetes Dashboard is a web-based Kubernetes user interface. You can use Dashboard to deploy containerized applications to a Kubernetes cluster, troubleshoot your containerized application, and manage the cluster resources."><meta name=generator content="Hugo 0.79.1"><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css integrity="sha256-l85OmPOjvil/SOvVt3HnSSjzF1TUMyT9eV0c2BzEGzU=" crossorigin=anonymous><link rel=stylesheet href=http://www.ethernetresearch.com/fontawesome/css/all.min.css><link rel=stylesheet href="https://fonts.googleapis.com/css?family=Roboto+Slab|Ruda"><link rel=stylesheet type=text/css href=http://www.ethernetresearch.com/css/styles.css></head><body><div id=container><header><h1><a href=http://www.ethernetresearch.com/>Ethernet Research</a></h1><ul id=social-media><li><a href=https://linkedin.com/in/username title=LinkedIn><i class="fab fa-linkedin fa-lg"></i></a></li><li><a href=https://www.youtube.com/channel/UCnmHCstjZcevizOQ0qmANlw title=Youtube><i class="fab fa-youtube fa-lg"></i></a></li></ul><p><em>Actionable information about cloud technologies</em></p></header><nav><ul><li><a href=http://www.ethernetresearch.com/geekzone/><i class="fa-li fa fa-lg"></i><span>GeekZone</span></a></li><li><a href=http://www.ethernetresearch.com/articles/><i class="fa-li fa fa-lg"></i><span>Articles</span></a></li><li><a href=http://www.ethernetresearch.com/about/><i class="fa-li fa fa-lg"></i><span>About Us</span></a></li><li><a href=http://www.ethernetresearch.com/online-courses-training/><i class="fa-li fa fa-lg"></i><span>Online Courses</span></a></li><li><a href=http://www.ethernetresearch.com/contact/><i class="fa-li fa fa-lg"></i><span>Contact</span></a></li></ul></nav><main><article><h1></h1><aside><ul><li><time class=post-date datetime=0001-01-01T00:00:00Z>Jan 1, 0001</time></li><li>5 minute read</li></ul></aside><h1 id=kubernetes-dashboard-remote-access>Kubernetes Dashboard Remote Access</h1><p>Kubernetes is a popular cluster and container management/orchestration platform widely used in pulic and private clouds. Kubernetes Dashboard is a web-based Kubernetes user interface. You can use Dashboard to deploy containerized applications to a Kubernetes cluster, troubleshoot your containerized application, and manage the cluster resources.</p><p>SocketXP TLS VPN solution (a lightweight VPN) provides secure remote access to private Kubernetes Clusters in your private cloud or public cloud. SocketXP also provides a secure public URL to access your local private applications including Kubernetes Dashboard.</p><p>SocketXP agent is available as a docker container in the <a href=https://hub.docker.com/r/expresssocket/socketxp>SocketXP DockerHub Repository</a>. Run the SocketXP Docker container as a standalone container (as explained in the below sections) in your Kubernetes cluster to setup remote access to your Kubernetes Dashboard.</p><h2 id=deploying-the-dashboard-ui>Deploying the Dashboard UI:</h2><p>Follow the instructions in the <a href=https://kubernetes.io/docs/tasks/access-application-cluster/web-ui-dashboard/>Kubernetes Open Source Project page</a> on how to deploy and setup the Dashboard UI in your Kubernetes Cluster.</p><p><a href=https://kubernetes.io/docs/tasks/access-application-cluster/web-ui-dashboard/>https://kubernetes.io/docs/tasks/access-application-cluster/web-ui-dashboard/</a></p><p>As explained in the Kubernetes official documentation, you need to run the <code>kubectl</code> CLI utility in proxy mode to access your dashboard in a web browser.</p><h2 id=overall-strategy>Overall Strategy</h2><p>Here is the overall strategy to setup remote access to your Kubernetes Dashboard:</p><ul><li>Deploy SocketXP VPN agent Docker container in your K8 cluster.</li><li>Install the <code>kubectl</code> CLI utility locally on your laptop.</li><li>Setup the kubectl config file in your laptop with SocketXP Public URL, K8 SSL Certs, and Key.</li><li>Remote access your private Kubernetes cluster from your laptop using the <code>kubectl</code> CLI utility.</li><li>Run kubectl in proxy mode in your laptop.</li><li>Access your Kubernetes dashboard in a web browser via the local kubectl proxy.</li></ul><h2 id=socketxp-agent-docker-container-deployment>SocketXP Agent Docker Container Deployment:</h2><p>First go to <a href=https://porta.socketxp.com/>SocketXP Portal</a>. Signup for a free account and get your authtoken there. Use the authtoken to create a Kubernetes secret as shown below.</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>kubectl create secret generic socketxp-credentials --from-literal<span style=color:#f92672>=</span>authtoken<span style=color:#f92672>=[</span>your-auth-token-goes-here<span style=color:#f92672>]</span>
+</code></pre></div><p>Verify that the secret <code>socketxp-credentials</code> got created.</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>$ kubectl get secrets
+NAME                   TYPE                                  DATA   AGE
+default-token-5skb7    kubernetes.io/service-account-token   <span style=color:#ae81ff>3</span>      4h
+socketxp-credentials   Opaque                                <span style=color:#ae81ff>1</span>      4h
+$
+</code></pre></div><p>We&rsquo;ll use the below <code>config.json</code> file to configure the SocketXP agent Docker container. In this example, we are trying to create a secure public web URL and a TLS VPN tunnel to the Kubernetes API server.</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-json data-lang=json><span style=color:#960050;background-color:#1e0010>$</span> <span style=color:#960050;background-color:#1e0010>cat</span> <span style=color:#960050;background-color:#1e0010>config.json</span>
+{ 
+    <span style=color:#f92672>&#34;tunnel_enabled&#34;</span>: <span style=color:#66d9ef>true</span>, 
+    <span style=color:#f92672>&#34;tunnels&#34;</span> : [{ 
+        <span style=color:#f92672>&#34;destination&#34;</span>: <span style=color:#e6db74>&#34;https://kubernetes.default&#34;</span>, 
+        <span style=color:#f92672>&#34;protocol&#34;</span>: <span style=color:#e6db74>&#34;tls&#34;</span>, 
+        <span style=color:#f92672>&#34;custom_domain&#34;</span>: <span style=color:#e6db74>&#34;&#34;</span>, 
+        <span style=color:#f92672>&#34;subdomain&#34;</span>: <span style=color:#e6db74>&#34;&#34;</span> 
+    }], 
+    <span style=color:#f92672>&#34;relay_enabled&#34;</span>: <span style=color:#66d9ef>false</span>, 
+}
+
+</code></pre></div><p>Next create a Kubernetes configmap to store the above SocketXP agent configuration file.</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>kubectl create configmap socketxp-configmap --from-file<span style=color:#f92672>=</span>/home/test-user/config.json
+</code></pre></div><p>Verify that the <code>socketxp-configmap</code> got created.</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>$ kubectl describe configmaps socketxp-configmap
+Name:         socketxp-configmap
+Namespace:    default
+Labels:       &lt;none&gt;
+Annotations:  &lt;none&gt;
+
+Data
+<span style=color:#f92672>====</span>
+config.json:
+----
+<span style=color:#f92672>{</span> <span style=color:#e6db74>&#34;tunnel_enabled&#34;</span>: true, <span style=color:#e6db74>&#34;tunnels&#34;</span> : <span style=color:#f92672>[{</span> <span style=color:#e6db74>&#34;destination&#34;</span>: <span style=color:#e6db74>&#34;https://kubernetes.default&#34;</span>, <span style=color:#e6db74>&#34;protocol&#34;</span>: <span style=color:#e6db74>&#34;tls&#34;</span>, <span style=color:#e6db74>&#34;custom_domain&#34;</span>: <span style=color:#e6db74>&#34;&#34;</span>, <span style=color:#e6db74>&#34;subdomain&#34;</span>: <span style=color:#e6db74>&#34;&#34;</span> <span style=color:#f92672>}]</span>, <span style=color:#e6db74>&#34;relay_enabled&#34;</span>: false <span style=color:#f92672>}</span>
+
+Events:  &lt;none&gt;
+</code></pre></div><p>Now that we have created the authtoken secret and the configmap needed by the SocketXP agent, it&rsquo;s time to launch the SocketXP Docker container <code>expresssocket/socketxp:latest</code> as a Kubernetes Deployment.</p><p>Here is the <code>deployment.yaml</code> file we&rsquo;ll use to create a standalone SocketXP agent deployment.</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-yaml data-lang=yaml><span style=color:#ae81ff>$cat deployment.yaml </span>
+<span style=color:#f92672>apiVersion</span>: <span style=color:#ae81ff>apps/v1</span>
+<span style=color:#f92672>kind</span>: <span style=color:#ae81ff>Deployment</span>
+<span style=color:#f92672>metadata</span>:
+  <span style=color:#f92672>name</span>: <span style=color:#ae81ff>socketxp</span>
+  <span style=color:#f92672>labels</span>:
+    <span style=color:#f92672>app</span>: <span style=color:#ae81ff>socketxp</span>
+<span style=color:#f92672>spec</span>:
+  <span style=color:#f92672>replicas</span>: <span style=color:#ae81ff>1</span>
+  <span style=color:#f92672>selector</span>:
+    <span style=color:#f92672>matchLabels</span>:
+      <span style=color:#f92672>app</span>: <span style=color:#ae81ff>socketxp</span>
+  <span style=color:#f92672>template</span>:
+    <span style=color:#f92672>metadata</span>:
+      <span style=color:#f92672>labels</span>:
+        <span style=color:#f92672>app</span>: <span style=color:#ae81ff>socketxp</span>
+    <span style=color:#f92672>spec</span>:
+      <span style=color:#f92672>containers</span>:
+      - <span style=color:#f92672>name</span>: <span style=color:#ae81ff>socketxp</span>
+        <span style=color:#f92672>image</span>: <span style=color:#ae81ff>expresssocket/socketxp:latest</span>
+        <span style=color:#f92672>env</span>:
+          - <span style=color:#f92672>name</span>: <span style=color:#ae81ff>AUTHTOKEN</span>
+            <span style=color:#f92672>valueFrom</span>:
+              <span style=color:#f92672>secretKeyRef</span>:
+                <span style=color:#f92672>name</span>: <span style=color:#ae81ff>socketxp-credentials</span>
+                <span style=color:#f92672>key</span>: <span style=color:#ae81ff>authtoken</span>
+        <span style=color:#f92672>volumeMounts</span>:
+        - <span style=color:#f92672>name</span>: <span style=color:#ae81ff>config-volume</span>
+          <span style=color:#f92672>mountPath</span>: <span style=color:#ae81ff>/data</span>
+      <span style=color:#f92672>volumes</span>:
+        - <span style=color:#f92672>name</span>: <span style=color:#ae81ff>config-volume</span>
+          <span style=color:#f92672>configMap</span>:
+            <span style=color:#75715e># Provide the name of the ConfigMap containing the files you want</span>
+            <span style=color:#75715e>#to add to the container</span>
+            <span style=color:#f92672>name</span>: <span style=color:#ae81ff>socketxp-configmap</span>
+</code></pre></div><p>::: warning Note:
+We have created a separate volume named <code>config-volume</code> and mounted it under <code>/data</code> directory inside the container, so that the <code>socketxp-configmap</code> will be available as a <code>config.json</code> file under the <code>/data</code> directory in the running container.
+:::</p><p>Next, check if the pods are created from the deployment and running.</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>$ kubectl get pods
+NAME                        READY   STATUS    RESTARTS   AGE
+socketxp-75cb4dd7c9-bhxfp   1/1     Running   <span style=color:#ae81ff>0</span>          4s
+$
+</code></pre></div><p>Now you can retrieve the SocketXP Public URL created for your Kubernetes API server from the SocketXP Portal Page at: <a href=https://portal.socketxp.com/#/tunnels>https://portal.socketxp.com/#/tunnels</a> or from the pod logs as shown below.</p><pre><code>$ kubectl logs socketxp-75cb4dd7c9-bhxfp
+...
+...
+
+Login Succeeded.
+User [] Email [test-user@gmail.com].
+
+Connected.
+Public URL -&gt; https://test-user-fn4mda420.socketxp.com
+
+</code></pre><p>You can now use the above SocketXP Public URL to access the Kubernetes Cluster&rsquo;s API server remotely using a <code>kubectl</code> utility.</p><h2 id=local-kubectl-installation>Local kubectl installation</h2><p>Install the <code>kubectl</code> CLI utility locally on your laptop to remote access your Kubernetes cluster. Follow the instructions here to download and install <code>kubectl</code> on your laptop:</p><p><a href=https://kubernetes.io/docs/tasks/tools/install-kubectl/>https://kubernetes.io/docs/tasks/tools/install-kubectl/</a></p><p>After you have installed the kubectl CLI utility, overwrite the <code>kubectl</code> config file located at $HOME/.kube/config in your laptop with the one from your cluster&rsquo;s master node($HOME/.kube/config).</p><p>Next, update the API server URL in your <code>kubectl</code> config file to use the SocketXP Public URL <code>https://test-user-fn4mda420.socketxp.com</code>, as shown below.</p><pre><code>apiVersion: v1
+clusters:
+- cluster:
+    certificate-authority: /Users/test-user/.minikube/ca.crt
+    server: https://test-user-fn4mda420.socketxp.com 
+  name: minikube
+contexts:
+- context:
+    cluster: minikube
+    user: minikube
+  name: minikube
+...
+...
+</code></pre><p>Please ensure that you also copy the client certificate, CA certificate and private key files or authtoken from your Kubernetes cluster&rsquo;s master node to your laptop in the appropriate folder as specified in the kubectl config file.</p><p>Verify that the config works fine, using the following command:</p><pre><code>kubectl config view
+</code></pre><p>Now remote access or remote manage your private Kubernetes Cluster from your laptop by executing any <code>kubectl</code> command locally:</p><div class=highlight><pre style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh>$ kubectl get pods
+NAME                        READY   STATUS    RESTARTS   AGE
+socketxp-75cb4dd7c9-bhxfp   1/1     Running   <span style=color:#ae81ff>0</span>          1h
+</code></pre></div><p>::: warning Note:
+When you create more than one replica of the SocketXP agent pod using the deployment, each pod would be assigned a unique SocketXP Public URL. This is because each SocketXP agent pod running in the Kubernetes Cluster will fetch a new Public URL from the SocketXP Cloud Gateway.
+:::</p><h2 id=run-kubectl-in-proxy-mode>Run kubectl in proxy mode</h2><p>To remote access your Kubernetes Dashboard, run the <code>kubectl</code> CLI utility in proxy mode in your laptop as shown below:</p><pre><code>$ kubectl proxy  
+Starting to serve on 127.0.0.1:8001
+</code></pre><p>Let this command continue to run in the foreground.</p><h2 id=remote-access-kubernetes-dashboard>Remote access Kubernetes Dashboard:</h2><p>Now you can remote access your Kubernetes Dashboard from your laptop using the following local URL via the kubectl proxy. Kubectl will make Dashboard available at:</p><p><a href=http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/>http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/</a>.</p><p>Now you can view or manage your k8 resources.</p><p><img src=../assets/img/kubernetes-dashboard-remote-access/k8-dashboard-remote-access.png alt="kubernetes dashboard remote access"></p></article><section class=post-nav><ul><li><a href=http://www.ethernetresearch.com/geekzone/kubernetes-microservice-remote-access/><i class="fa fa-chevron-circle-left"></i></a></li><li><a href=http://www.ethernetresearch.com/geekzone/kubernetes-cluster-remote-access/><i class="fa fa-chevron-circle-right"></i></a></li></ul></section></main><footer><h6>Copyright © 2021 - Ethernet Research | All Rights Reserved.</h6></footer></div><script src=http://www.ethernetresearch.com/js/scripts.js></script></body></html>
