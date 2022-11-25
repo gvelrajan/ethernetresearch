@@ -1,4 +1,4 @@
-baseurl = "http://www.ethernetresearch.com/"
+baseurl = "https://gvelrajan.github.io/ethernetresearch/"
 title = "Ethernet Research"
 copyright = "Copyright &copy; 2021 - Ethernet Research"
 canonifyurls = true
